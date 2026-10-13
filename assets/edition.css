@@ -1,0 +1,413 @@
+/* Edition stylesheet.
+   The palette is config/art-effect.json's four dither colours, the same ones
+   the photographs are reduced to, so the pictures and the page around them are
+   the same artwork. Light only and deliberately so: every text/background pair
+   here was picked against that fixed palette, and a dark variant would need
+   the whole set re-derived rather than inverted. */
+
+:root {
+  --navy: #080e63;
+  --purple: #6538b7;
+  --red: #fd3030;
+  --pale: #a1c9ce;
+  --card: #dbeaec;
+  --soft: #485d90;
+  --page: #c8d8db;
+  --white: #fff;
+  --measure: 68ch;
+  /* One reading column for the whole page. Wider than this and the
+     summaries run long enough that the eye loses the line; the dead space a
+     1180px card leaves to the right of a 68ch paragraph looks like a bug. */
+  --wide: 880px;
+  --gap: 24px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--navy);
+  font: 17px/1.55 Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--purple); }
+a:hover, a:focus-visible { color: var(--red); }
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+.skip:focus {
+  left: 16px;
+  top: 16px;
+  z-index: 10;
+  background: var(--navy);
+  color: var(--white);
+  padding: 10px 14px;
+  border-radius: 6px;
+}
+
+/* ---------- masthead ---------- */
+
+.masthead {
+  background: var(--navy);
+  color: var(--white);
+  border-bottom: 5px solid var(--red);
+}
+.masthead-inner {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 44px 24px 40px;
+}
+.masthead .eyebrow {
+  margin: 0 0 14px;
+  font-size: 13px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--pale);
+}
+.masthead .eyebrow a { color: var(--pale); text-decoration: none; }
+.masthead .eyebrow a:hover, .masthead .eyebrow a:focus-visible { color: var(--white); }
+.masthead h1 {
+  margin: 0;
+  font-size: clamp(30px, 5vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -.01em;
+}
+.masthead .dateline {
+  margin: 18px 0 0;
+  color: var(--pale);
+  font-size: 15px;
+}
+.masthead .standfirst {
+  margin: 10px 0 0;
+  color: var(--pale);
+  font-size: 15px;
+  max-width: var(--measure);
+}
+
+/* ---------- contents ---------- */
+
+.contents { background: var(--white); border-bottom: 2px solid var(--pale); }
+.contents-inner { max-width: var(--wide); margin: 0 auto; padding: 24px; }
+.contents h2 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+.contents ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: toc;
+  columns: 2;
+  column-gap: 32px;
+}
+.contents li {
+  counter-increment: toc;
+  margin-bottom: 8px;
+  break-inside: avoid;
+  font-size: 15px;
+}
+.contents li::before {
+  content: counter(toc) ". ";
+  color: var(--purple);
+}
+.contents a { text-decoration: none; }
+.contents a:hover, .contents a:focus-visible { text-decoration: underline; }
+
+/* ---------- shared section furniture ---------- */
+
+main { max-width: var(--wide); margin: 0 auto; padding: 32px 24px 8px; }
+
+section {
+  background: var(--card);
+  border: 2px solid var(--pale);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: var(--gap);
+}
+
+.kicker {
+  margin: 0 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.kicker .label {
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--purple);
+  font-weight: bold;
+}
+.flags { font-size: 20px; line-height: 1; letter-spacing: .06em; }
+.age {
+  background: var(--white);
+  border: 1px solid var(--pale);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  color: var(--navy);
+}
+
+section h2 {
+  margin: 0;
+  font-size: clamp(23px, 2.6vw, 32px);
+  line-height: 1.18;
+  letter-spacing: -.005em;
+}
+section h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.25; }
+
+/* ---------- briefs ---------- */
+
+.brief .summary {
+  margin: 18px 0 0;
+  max-width: var(--measure);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.art { margin: 22px 0 0; }
+.art img {
+  display: block;
+  width: 100%;
+  height: clamp(220px, 34vw, 420px);
+  object-fit: cover;
+  /* The crop is wider than it is tall, so a centred one takes the head off;
+     18% from the top was measured against real frames, not guessed. */
+  object-position: center 18%;
+  border-radius: 10px;
+  background: var(--white);
+}
+.art figcaption {
+  margin-top: 7px;
+  font-size: 12px;
+  color: var(--soft);
+}
+
+.pull {
+  margin: 22px 0 0;
+  background: var(--white);
+  border-left: 5px solid var(--red);
+  border-radius: 0 8px 8px 0;
+  padding: 18px 22px;
+  max-width: var(--measure);
+}
+.pull blockquote {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.65;
+}
+.pull blockquote::before { content: "\201C"; }
+.pull blockquote::after { content: "\201D"; }
+.pull figcaption {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--soft);
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.keywords li {
+  background: var(--navy);
+  color: var(--white);
+  border-radius: 999px;
+  padding: 5px 13px;
+  font-size: 12.5px;
+}
+
+.sources {
+  margin: 18px 0 0;
+  font-size: 13.5px;
+  color: var(--soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: baseline;
+}
+.sources-label {
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  font-size: 11.5px;
+  color: var(--purple);
+}
+.sources a { font-weight: bold; text-decoration: none; }
+.sources a:hover, .sources a:focus-visible { text-decoration: underline; }
+
+/* ---------- country tracker ---------- */
+
+.tracker table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  background: var(--white);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.tracker tr + tr { border-top: 1px solid var(--pale); }
+.tracker th, .tracker td {
+  text-align: left;
+  vertical-align: top;
+  padding: 18px;
+}
+.tracker th { width: 180px; font-weight: normal; }
+.tracker .country {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  color: var(--navy);
+}
+.tracker .row-title { margin: 0 0 6px; font-weight: bold; }
+.tracker td p { max-width: var(--measure); }
+.tracker td p:last-of-type { margin-bottom: 0; }
+
+@media (max-width: 720px) {
+  .tracker table, .tracker tbody, .tracker tr, .tracker th, .tracker td { display: block; }
+  .tracker th { width: auto; padding-bottom: 0; }
+  .tracker td { padding-top: 10px; }
+}
+
+/* ---------- radar and horizon ---------- */
+
+.radar { background: var(--navy); border-color: var(--purple); color: var(--white); }
+.radar h2 { color: var(--white); }
+.radar .kicker .label { color: var(--pale); }
+.radar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--gap);
+  margin-top: 22px;
+}
+.side-label {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--pale);
+}
+
+.horizon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--gap);
+  margin-top: 22px;
+}
+
+.event {
+  background: var(--card);
+  border: 2px solid var(--pale);
+  border-radius: 10px;
+  padding: 20px;
+  color: var(--navy);
+}
+.horizon .event { background: var(--white); }
+.radar-side .event + .event { margin-top: var(--gap); }
+.event .kicker { margin-bottom: 8px; }
+.event .timing {
+  margin: 0 0 10px;
+  color: var(--red);
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.event p:last-of-type { margin-bottom: 0; }
+
+/* ---------- know the players ---------- */
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: var(--gap);
+  margin-top: 22px;
+}
+.player {
+  background: var(--white);
+  border: 2px solid var(--pale);
+  border-radius: 10px;
+  padding: 22px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.portrait {
+  flex: 0 0 76px;
+  width: 76px;
+  height: 76px;
+  object-fit: cover;
+  background: var(--card);
+}
+/* A circle is the avatar convention and reads as a face, which is the wrong
+   promise on a ministry, so only people get one. */
+.portrait.person { border-radius: 50%; }
+.portrait.institution { border-radius: 8px; }
+.monogram {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--purple);
+  color: var(--white);
+  font-size: 24px;
+  letter-spacing: .04em;
+}
+.player-body { min-width: 0; }
+.player .kind {
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+.player .subtitle { margin: 0 0 6px; color: var(--soft); font-size: 14px; }
+.player .role { margin: 0 0 12px; color: var(--purple); font-size: 14px; }
+.player p { font-size: 15px; }
+.player .fact {
+  background: var(--card);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 14px;
+  margin-bottom: 0;
+}
+.player .checked { margin: 10px 0 0; font-size: 12px; color: var(--soft); }
+.players .note { margin: 18px 0 0; font-size: 13px; color: var(--soft); }
+
+/* ---------- footer ---------- */
+
+footer { border-top: 2px solid var(--pale); margin-top: 8px; }
+.footer-inner {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 28px 24px 56px;
+  font-size: 14px;
+  color: var(--navy);
+}
+
+/* ---------- narrow screens ---------- */
+
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .masthead-inner { padding: 32px 16px 28px; }
+  .contents-inner, main, .footer-inner { padding-left: 16px; padding-right: 16px; }
+  .contents ol { columns: 1; }
+  section { padding: 20px; border-radius: 10px; }
+  .player { flex-direction: column; }
+}
