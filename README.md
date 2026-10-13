@@ -3,6 +3,14 @@
 The public reading site for the daily executive newsletter: one page per
 edition, newest first.
 
+## One-time setup
+
+GitHub Pages has to be turned on by hand before the first deploy can succeed.
+In **Settings -> Pages**, set **Source** to **GitHub Actions**, then re-run the
+"Deploy reading site" workflow. The workflow asks to enable Pages itself, but
+the Actions token is not allowed to create a Pages site, so that call fails
+with `Resource not accessible by integration` until the switch is flipped once.
+
 - `index.html` is generated, never edited by hand. It is rebuilt from
   `editions.json` on every publish.
 - `editions/YYYY-MM-DD.html` is the rendered email for that local calendar day,
