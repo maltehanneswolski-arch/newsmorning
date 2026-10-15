@@ -20,6 +20,11 @@
      1180px card leaves to the right of a 68ch paragraph looks like a bug. */
   --wide: 880px;
   --gap: 24px;
+  --rail: 248px;
+  /* Three columns need the article plus both rails plus two gaps plus the
+     shell's own padding. Below this the layout steps down rather than
+     squeezing the measure. */
+  --shell-max: calc(var(--wide) + (2 * var(--rail)) + (2 * var(--gap)) + 48px);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -60,9 +65,17 @@ a:hover, a:focus-visible { color: var(--red); }
   border-bottom: 5px solid var(--red);
 }
 .masthead-inner {
+  /* Tracks the shell's width at each breakpoint so the headline starts on the
+     same left edge as the contents rail instead of floating off-grid. */
   max-width: var(--wide);
   margin: 0 auto;
   padding: 44px 24px 40px;
+}
+@media (min-width: 1080px) {
+  .masthead-inner { max-width: calc(var(--wide) + var(--rail) + var(--gap) + 48px); }
+}
+@media (min-width: 1400px) {
+  .masthead-inner { max-width: var(--shell-max); }
 }
 .masthead .eyebrow {
   margin: 0 0 14px;
@@ -91,7 +104,148 @@ a:hover, a:focus-visible { color: var(--red); }
   max-width: var(--measure);
 }
 
-/* ---------- contents ---------- */
+/* ---------- page shell ----------
+   Editions published before the rails existed have no .shell and no .rail;
+   they are static files that cannot be re-rendered, so the old full-width
+   .contents band below is kept intact for them and the rail rules are scoped
+   to .rail rather than replacing it. */
+
+.shell {
+  display: grid;
+  gap: var(--gap);
+  /* Stacked, the shell is just the reading column: the measure has to hold
+     when the rails are below the article rather than beside it. */
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 32px 24px 8px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "toc"
+    "main"
+    "arc";
+}
+.shell > main { grid-area: main; max-width: none; margin: 0; padding: 0; }
+.rail-contents { grid-area: toc; }
+.rail-archive { grid-area: arc; }
+
+.rail { min-width: 0; }
+.rail-inner {
+  background: var(--white);
+  border: 2px solid var(--pale);
+  border-radius: 12px;
+  padding: 20px;
+}
+.rail-label {
+  margin: 0 0 12px;
+  font-size: 13px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+.rail-label-more { margin-top: 20px; }
+.rail a { text-decoration: none; }
+.rail a:hover, .rail a:focus-visible { text-decoration: underline; }
+
+.rail-briefs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: toc;
+}
+.rail-briefs li {
+  counter-increment: toc;
+  margin-bottom: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.rail-briefs li::before {
+  content: counter(toc) ". ";
+  color: var(--purple);
+}
+.rail-standing {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rail-standing li { margin-bottom: 9px; font-size: 14px; line-height: 1.4; }
+
+.archive-list { margin: 0; padding: 0; list-style: none; }
+.archive-list li + li { border-top: 1px solid var(--pale); }
+.archive-list a { display: block; padding: 9px 0; }
+.archive-list .when {
+  display: block;
+  font-size: 12px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.archive-list .what {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+  line-height: 1.35;
+}
+/* The day you are on is marked rather than removed, so the rail reads as a
+   calendar with a position in it. */
+.archive-list .is-current a { color: var(--navy); cursor: default; }
+.archive-list .is-current .when { color: var(--red); }
+.archive-list .is-current .what { font-weight: bold; }
+.rail-more { margin: 14px 0 0; font-size: 14px; }
+.rail-more a::after { content: " \2192"; }
+
+/* Two columns: contents beside the article, archive as a band underneath.
+   The rail only has somewhere to stick if its grid area is as tall as the
+   article, so the contents share a row with main rather than sitting in an
+   auto row of their own. */
+@media (min-width: 1080px) {
+  .shell {
+    max-width: calc(var(--wide) + var(--rail) + var(--gap) + 48px);
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+    grid-template-areas:
+      "toc main"
+      "arc arc";
+  }
+  .rail-archive .archive-list { columns: 2; column-gap: var(--gap); }
+  .rail-archive .archive-list li { break-inside: avoid; }
+  .rail-archive .archive-list li + li { border-top: 0; }
+}
+
+/* Three columns: themes left, briefing centre, archive right. */
+@media (min-width: 1400px) {
+  .shell {
+    max-width: var(--shell-max);
+    grid-template-columns: var(--rail) minmax(0, var(--wide)) var(--rail);
+    grid-template-areas: "toc main arc";
+    justify-content: center;
+  }
+  .rail-archive .archive-list { columns: 1; }
+  .rail-archive .archive-list li + li { border-top: 1px solid var(--pale); }
+}
+
+/* Sticky needs the rail stretched to the full row height (the grid default) so
+   the inner box has somewhere to travel. A rail taller than the viewport
+   scrolls its own overflow rather than pinning its tail out of reach. */
+@media (min-width: 1080px) {
+  .rail-contents .rail-inner {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+}
+@media (min-width: 1400px) {
+  .rail-archive .rail-inner {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+}
+
+/* Anchors land below the sticky offset instead of under the viewport edge. */
+.brief, .tracker, .radar, .horizon, .players { scroll-margin-top: 20px; }
+
+/* ---------- contents (legacy full-width band) ---------- */
 
 .contents { background: var(--white); border-bottom: 2px solid var(--pale); }
 .contents-inner { max-width: var(--wide); margin: 0 auto; padding: 24px; }
