@@ -5,6 +5,18 @@
    here was picked against that fixed palette, and a dark variant would need
    the whole set re-derived rather than inverted. */
 
+/* Flag glyphs, because most of the readership is on Windows and Windows ships
+   no flag emoji at all: the regional-indicator pair 🇵🇹 falls back to its two
+   letters, so every flag on the page rendered as "PT", "EU", "KR". This font
+   carries nothing but the flag codepoints, so naming it first in the stack
+   fixes the flags and leaves every other character to the normal face. */
+@font-face {
+  font-family: "Twemoji Country Flags";
+  src: url("TwemojiCountryFlags.woff2") format("woff2");
+  font-display: swap;
+  unicode-range: U+1F1E6-1F1FF;
+}
+
 :root {
   --navy: #080e63;
   --purple: #6538b7;
@@ -29,6 +41,12 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* The save controls and the counter badge are toggled with the hidden
+   attribute, and both carry a display of their own. A bare `display:
+   inline-flex` beats the UA's `[hidden] { display: none }`, so a hidden
+   element stayed on screen; this keeps the attribute authoritative. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
@@ -36,7 +54,7 @@ body {
   margin: 0;
   background: var(--page);
   color: var(--navy);
-  font: 17px/1.55 Tahoma, Geneva, Verdana, sans-serif;
+  font: 17px/1.55 "Twemoji Country Flags", Tahoma, Geneva, Verdana, sans-serif;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -125,6 +143,10 @@ a:hover, a:focus-visible { color: var(--red); }
     "arc";
 }
 .shell > main { grid-area: main; max-width: none; margin: 0; padding: 0; }
+/* A page with no rails -- the saved list -- is one centred column at every
+   width, rather than the article column of a three-column grid with two empty
+   tracks beside it. */
+.shell-solo { max-width: var(--wide); grid-template-columns: minmax(0, 1fr); grid-template-areas: "main"; }
 .rail-contents { grid-area: toc; }
 .rail-archive { grid-area: arc; }
 
@@ -205,6 +227,7 @@ a:hover, a:focus-visible { color: var(--red); }
       "toc main"
       "arc arc";
   }
+  .shell-solo { max-width: var(--wide); grid-template-columns: minmax(0, 1fr); grid-template-areas: "main"; }
   .rail-archive .archive-list { columns: 2; column-gap: var(--gap); }
   .rail-archive .archive-list li { break-inside: avoid; }
   .rail-archive .archive-list li + li { border-top: 0; }
@@ -218,6 +241,7 @@ a:hover, a:focus-visible { color: var(--red); }
     grid-template-areas: "toc main arc";
     justify-content: center;
   }
+  .shell-solo { max-width: var(--wide); grid-template-columns: minmax(0, 1fr); grid-template-areas: "main"; }
   .rail-archive .archive-list { columns: 1; }
   .rail-archive .archive-list li + li { border-top: 1px solid var(--pale); }
 }
@@ -303,7 +327,12 @@ section {
   color: var(--purple);
   font-weight: bold;
 }
-.flags { font-size: 20px; line-height: 1; letter-spacing: .06em; }
+.flags {
+  font-family: "Twemoji Country Flags", sans-serif;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: .06em;
+}
 .age {
   background: var(--white);
   border: 1px solid var(--pale);
@@ -496,10 +525,18 @@ section h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.25; }
   border: 2px solid var(--pale);
   border-radius: 10px;
   padding: 22px;
+}
+/* Only the identity block sits beside the mark. Everything after it -- the
+   biography, the why, the fact -- runs the full width of the card, because a
+   paragraph set in the ~200px left over next to a 76px portrait wraps every
+   four or five words and reads as a column of debris. */
+.player-head {
   display: flex;
   gap: 18px;
-  align-items: flex-start;
+  align-items: center;
+  margin-bottom: 16px;
 }
+.player-id { min-width: 0; }
 .portrait {
   flex: 0 0 76px;
   width: 76px;
@@ -520,7 +557,25 @@ section h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.25; }
   font-size: 24px;
   letter-spacing: .04em;
 }
+/* An institution has a country but no face, so its tile carries the flag of
+   the state it belongs to rather than two initials. The glyph is clipped to
+   the tile and oversized so it reads as a plate, not as text. */
+.portrait.flagmark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--pale);
+  font-family: "Twemoji Country Flags", sans-serif;
+  font-size: 54px;
+  line-height: 1;
+  text-indent: 0;
+}
 .player-body { min-width: 0; }
+.player-body p:first-child { margin-top: 0; }
+.player-body p:last-child { margin-bottom: 0; }
+.player h3 { margin: 0 0 4px; }
 .player .kind {
   margin: 0 0 6px;
   display: flex;
@@ -532,7 +587,7 @@ section h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.25; }
   color: var(--purple);
 }
 .player .subtitle { margin: 0 0 6px; color: var(--soft); font-size: 14px; }
-.player .role { margin: 0 0 12px; color: var(--purple); font-size: 14px; }
+.player .role { margin: 0; color: var(--purple); font-size: 14px; }
 .player p { font-size: 15px; }
 .player .fact {
   background: var(--card);
@@ -543,6 +598,97 @@ section h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.25; }
 }
 .player .checked { margin: 10px 0 0; font-size: 12px; color: var(--soft); }
 .players .note { margin: 18px 0 0; font-size: 13px; color: var(--soft); }
+
+/* ---------- bookmarks ---------- */
+
+/* Saving is per-reader and lives in this origin's localStorage, so the button
+   is only wired up once the script confirms storage actually works. Until
+   then it stays hidden rather than offering an action that silently fails. */
+.bookmark {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 4px 10px;
+  border: 1.5px solid var(--pale);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--soft);
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bookmark[hidden] { display: none; }
+.bookmark:hover, .bookmark:focus-visible { border-color: var(--purple); color: var(--purple); }
+.bookmark .mark { font-size: 13px; line-height: 1; }
+.bookmark[aria-pressed="true"] {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: var(--white);
+}
+/* The tracker rows are tight, so their button drops the label and keeps the
+   star alone rather than pushing the detail column narrower. */
+.tracker .bookmark { margin: 8px 0 0; padding: 3px 8px; }
+.tracker .bookmark .text { display: none; }
+
+.bookmark.clear-all { margin-left: auto; color: var(--red); border-color: var(--red); }
+.bookmark.clear-all:hover, .bookmark.clear-all:focus-visible {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--white);
+}
+.saved-count {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--purple);
+  color: var(--white);
+  font-size: 11px;
+  text-align: center;
+}
+.saved-empty { color: var(--soft); }
+.saved-group { margin: 0 0 26px; }
+.saved-group h3 {
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--pale);
+  font-size: 15px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+.saved-list { list-style: none; margin: 0; padding: 0; }
+.saved-item {
+  background: var(--white);
+  border: 2px solid var(--pale);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.saved-item .saved-kind {
+  margin: 0 0 4px;
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+.saved-item h4 { margin: 0 0 8px; font-size: 18px; line-height: 1.25; }
+.saved-item p { margin: 0 0 10px; font-size: 15px; }
+.saved-actions { display: flex; gap: 14px; align-items: center; font-size: 13px; }
+.saved-actions button {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--red);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
 
 /* ---------- footer ---------- */
 
@@ -563,5 +709,5 @@ footer { border-top: 2px solid var(--pale); margin-top: 8px; }
   .contents-inner, main, .footer-inner { padding-left: 16px; padding-right: 16px; }
   .contents ol { columns: 1; }
   section { padding: 20px; border-radius: 10px; }
-  .player { flex-direction: column; }
+  .player-head { flex-direction: column; align-items: flex-start; gap: 12px; }
 }

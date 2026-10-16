@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Daily Newsletter &middot; saved items</title>
+    <meta name="description" content="Briefings, tracker rows and radar entries you saved while reading.">
+    <link rel="stylesheet" href="assets/edition.css">
+  </head>
+  <body data-site-root="">
+    <a class="skip" href="#main">Skip to the saved items</a>
+    <header class="masthead">
+      <div class="masthead-inner">
+        <p class="eyebrow"><a href="./">Daily Newsletter</a></p>
+        <h1>Saved items</h1>
+        <p class="standfirst">Whatever you saved while reading, newest edition first.
+          These are kept by this browser alone &mdash; they are not sent anywhere, and they
+          will not appear on another device.</p>
+      </div>
+    </header>
+
+    <div class="shell shell-solo">
+      <main id="main">
+        <section class="brief">
+          <header>
+            <p class="kicker"><span class="label">Saved</span>
+              <span class="saved-count" data-saved-count hidden>0</span>
+              <button class="bookmark clear-all" type="button" data-saved-clear hidden>
+                <span class="text">Clear all</span>
+              </button></p>
+            <h2>Your reading list</h2>
+          </header>
+          <div data-saved-list></div>
+        </section>
+      </main>
+    </div>
+
+    <footer>
+      <div class="footer-inner">
+        <p><a href="./">Latest edition</a> &middot; <a href="archive.html">All editions</a></p>
+      </div>
+    </footer>
+    <script src="assets/bookmarks.js" defer></script>
+  </body>
+</html>
