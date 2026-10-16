@@ -386,7 +386,12 @@ section h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.25; }
   border-left: 5px solid var(--red);
   border-radius: 0 8px 8px 0;
   padding: 18px 22px;
-  max-width: var(--measure);
+  /* Full card width, not the reading measure. A pull quote is a display
+     element the eye lands on once rather than a paragraph it reads down, so
+     the cap only left it visibly short of the art band above it and of the
+     summary it sits under. The two never lined up anyway: ch resolves
+     against each element's own font-size, so 68ch here (17px) came out
+     narrower than the same 68ch on .summary (18px). */
 }
 .pull blockquote {
   margin: 0;
