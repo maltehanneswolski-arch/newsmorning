@@ -115,11 +115,14 @@ a:hover, a:focus-visible { color: var(--red); }
   color: var(--pale);
   font-size: 15px;
 }
+/* The standfirst runs the full width of the masthead rather than stopping at
+   the reading measure: it is two short clauses of provenance, not body copy,
+   and capping it left it stacked three lines deep under a headline that had
+   already run the whole width. */
 .masthead .standfirst {
   margin: 10px 0 0;
   color: var(--pale);
   font-size: 15px;
-  max-width: var(--measure);
 }
 
 /* ---------- page shell ----------
