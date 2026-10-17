@@ -26,10 +26,13 @@
   --soft: #485d90;
   --page: #c8d8db;
   --white: #fff;
-  --measure: 68ch;
-  /* One reading column for the whole page. Wider than this and the
-     summaries run long enough that the eye loses the line; the dead space a
-     1180px card leaves to the right of a 68ch paragraph looks like a bug. */
+  /* One reading column for the whole page, and the measure with it: body
+     copy runs the full width of the card rather than stopping at a separate
+     cap. A 68ch paragraph inside an 880px card left about 100px of dead air
+     down the right-hand side, against an art band and a pull quote that both
+     ran edge to edge -- which reads as a broken box, not as typography. The
+     card width is now the only thing setting line length, so narrowing the
+     measure means narrowing this. */
   --wide: 880px;
   --gap: 24px;
   --rail: 248px;
@@ -357,7 +360,6 @@ section h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.25; }
 
 .brief .summary {
   margin: 18px 0 0;
-  max-width: var(--measure);
   font-size: 18px;
   line-height: 1.6;
 }
@@ -465,7 +467,7 @@ section h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.25; }
   color: var(--navy);
 }
 .tracker .row-title { margin: 0 0 6px; font-weight: bold; }
-.tracker td p { max-width: var(--measure); }
+.tracker td p { margin-top: 0; }
 .tracker td p:last-of-type { margin-bottom: 0; }
 
 @media (max-width: 720px) {
@@ -708,6 +710,57 @@ footer { border-top: 2px solid var(--pale); margin-top: 8px; }
   font-size: 14px;
   color: var(--navy);
 }
+
+/* ---------- scrollbar ---------- */
+
+/* The scrollbar is the one piece of furniture the browser draws for itself,
+   and the default grey gutter with its stepper arrows sits directly against a
+   page built from the four colours the photographs are dithered to. Both
+   syntaxes are here deliberately: Firefox and Chrome 121+ honour
+   `scrollbar-color`, older WebKit only honours the pseudo-elements, and a
+   browser that takes neither keeps its own control and loses nothing.
+
+   Unscoped on purpose, so the rails that scroll their own overflow match the
+   page gutter instead of reverting to the system control halfway down. */
+html {
+  scrollbar-color: var(--navy) var(--page);
+}
+
+::-webkit-scrollbar { width: 14px; height: 14px; }
+
+::-webkit-scrollbar-track {
+  background: var(--page);
+  border-left: 1px solid var(--pale);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--navy);
+  border-radius: 999px;
+  /* A transparent border clipped to the padding box floats the thumb inside
+     the track rather than filling the gutter edge to edge, which is what
+     makes it read as part of the page instead of bolted to it. */
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+/* `background` is a shorthand and resets background-clip to border-box, so
+   each state has to restate the clip or the thumb snaps to full width on
+   hover. */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--purple);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--red);
+  background-clip: padding-box;
+}
+
+/* Nothing on the page needs the steppers, and they are the part of the
+   default control that cannot be made to match anything. */
+::-webkit-scrollbar-button { display: none; }
+
+::-webkit-scrollbar-corner { background: var(--page); }
 
 /* ---------- narrow screens ---------- */
 

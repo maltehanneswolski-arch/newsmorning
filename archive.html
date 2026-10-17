@@ -70,6 +70,22 @@
       .edition .meta { display: block; margin-top: 10px; color: var(--soft); font-size: 13px; }
       footer { margin-top: 24px; color: var(--navy); font-size: 13px; }
       footer a { color: var(--purple); }
+      /* Same gutter as the editions, for the same reason: the browser's own
+         grey control is the one thing on the page that is not made of these
+         four colours. Kept in step with assets/edition.css by hand, because
+         this page carries its own style block rather than the stylesheet. */
+      html { scrollbar-color: var(--navy) #c8d8db; }
+      ::-webkit-scrollbar { width: 14px; height: 14px; }
+      ::-webkit-scrollbar-track { background: #c8d8db; border-left: 1px solid var(--pale); }
+      ::-webkit-scrollbar-thumb {
+        background: var(--navy);
+        border-radius: 999px;
+        border: 3px solid transparent;
+        background-clip: padding-box;
+      }
+      ::-webkit-scrollbar-thumb:hover { background: var(--purple); background-clip: padding-box; }
+      ::-webkit-scrollbar-thumb:active { background: var(--red); background-clip: padding-box; }
+      ::-webkit-scrollbar-button { display: none; }
       @media (max-width: 480px) {
         header h1 { font-size: 24px; }
         .edition .title { font-size: 19px; }
