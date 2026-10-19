@@ -50,14 +50,7 @@
      the Pacific to get from Tokyo to Seoul. */
   var lon = -10, lat = 25;
   var fromLon = lon, fromLat = lat, toLon = lon, toLat = lat;
-  var markLon = null, markLat = null, markCode = "";
-  /* The on-screen box of whatever this turn painted in the accent. A ring
-     around the point is the fallback for what a fill cannot answer: a code
-     with no shape in the data, and a country too small to see at 208px --
-     Albania is three pixels of accent without it. Measured in pixels rather
-     than in degrees or land area, because what matters is whether the reader
-     can see it. */
-  var markSpan = 0;
+  var markCode = "";
   var start = 0, duration = 0, frame = 0;
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
   var size = 0, radius = 0, centre = 0;
@@ -117,27 +110,23 @@
 
      Returns true when any part of the ring faces the viewer; a ring entirely
      on the far side has collapsed onto the rim and must not be drawn. */
-  var box = [0, 0, 0, 0];  /* minX, maxX, minY, maxY of the last visible ring */
-  function fillRing(ring) {
+  function fillRing(ring, outline) {
     var visible = false;
-    box[0] = box[2] = Infinity;
-    box[1] = box[3] = -Infinity;
     context.beginPath();
     for (var i = 0; i < ring.length; i += 2) {
       var point = project(ring[i] / Q, ring[i + 1] / Q);
-      if (point[2] > 0) {
-        visible = true;
-        if (point[0] < box[0]) box[0] = point[0];
-        if (point[0] > box[1]) box[1] = point[0];
-        if (point[1] < box[2]) box[2] = point[1];
-        if (point[1] > box[3]) box[3] = point[1];
-      }
+      if (point[2] > 0) visible = true;
       if (i === 0) context.moveTo(point[0], point[1]);
       else context.lineTo(point[0], point[1]);
     }
     if (!visible) return false;
     context.closePath();
     context.fill();
+    /* The marked country is stroked as well as filled. On anything the size of
+       France the stroke disappears into the fill; on Albania or Luxembourg,
+       which are a pixel or less across at this size, it is the whole reason
+       the country is visible at all. */
+    if (outline) context.stroke();
     return true;
   }
 
@@ -152,20 +141,15 @@
       if (entry[0] && wanted.indexOf(entry[0]) !== -1) { active.push(entry); continue; }
       for (var r = 1; r < entry.length; r++) fillRing(entry[r]);
     }
-    markSpan = 0;
     if (!active.length) return;
     /* The country the brief is about, drawn last and in the accent, so it
        reads as the answer to "where" rather than as one more coastline. */
     context.fillStyle = COLOURS.mark;
-    /* The biggest single piece, not the box round all of them: with the union,
-       Portugal plus the Azores measures as wide as France and loses the ring
-       that its mainland needs. What the reader sees is the largest blob. */
+    context.strokeStyle = COLOURS.mark;
+    context.lineWidth = 2;
+    context.lineJoin = "round";
     for (var a = 0; a < active.length; a++) {
-      for (var k = 1; k < active[a].length; k++) {
-        if (!fillRing(active[a][k])) continue;
-        var span = Math.max(box[1] - box[0], box[3] - box[2]);
-        if (span > markSpan) markSpan = span;
-      }
+      for (var k = 1; k < active[a].length; k++) fillRing(active[a][k], true);
     }
   }
 
@@ -190,23 +174,6 @@
     for (var b = -60; b <= 60; b += 30) line(null, b, -180, 180);
   }
 
-  function drawMark() {
-    if (markLon === null) return;
-    var point = project(markLon, markLat);
-    if (point[2] <= 0) return;
-    /* A fill wider than the ring does not need one. */
-    if (markSpan > 26) return;
-    /* Fade the ring as it approaches the limb so it slides round the edge
-       instead of blinking out. */
-    context.globalAlpha = Math.max(0, Math.min(1, point[2] * 4));
-    context.strokeStyle = COLOURS.mark;
-    context.lineWidth = 2;
-    context.beginPath();
-    context.arc(point[0], point[1], 10, 0, Math.PI * 2);
-    context.stroke();
-    context.globalAlpha = 1;
-  }
-
   function draw() {
     if (!size) return;
     context.clearRect(0, 0, size, size);
@@ -221,7 +188,6 @@
     context.fillRect(0, 0, size, size);
     strokeMeridians();
     fillCountries();
-    drawMark();
     context.restore();
     context.strokeStyle = COLOURS.edge;
     context.lineWidth = 1.5;
@@ -240,8 +206,6 @@
   }
 
   function turnTo(block) {
-    markLon = block.lon;
-    markLat = block.lat;
     markCode = block.code;
     if (nameEl) nameEl.textContent = block.label || "";
     /* Unwrap the target into the turn the viewer is already making, so a jump
