@@ -1,14 +1,14 @@
-/* The masthead globe.
+/* The rail globe.
  *
  * It answers one question while you read: where is this coming from. Every
- * scrollable block in the edition carries a data-geo point, the globe turns to
- * whichever block is nearest the top of the viewport, and the place it lands on
- * is marked and named. Scrolling the briefing spins it around the world in the
- * order the editor put the stories in.
+ * scrollable block in the edition carries a data-geo point and a country code,
+ * the globe turns to whichever block is nearest the top of the viewport, and
+ * that country is filled in the accent colour. Scrolling the briefing walks
+ * around the world in the order the editor put the stories in.
  *
  * Drawn on a canvas with an orthographic projection -- no mapping library, and
- * no third-party request: the coastlines come from assets/globe-land.js, which
- * is baked from Natural Earth by scripts/build-globe-land.py in the automation
+ * no third-party request: the shapes come from assets/globe-land.js, which is
+ * baked from Natural Earth by scripts/build-globe-land.py in the automation
  * repo. The whole thing is decorative, so every failure path ends with the
  * canvas hidden rather than with a broken page.
  */
@@ -23,9 +23,10 @@
   var context = canvas && canvas.getContext ? canvas.getContext("2d") : null;
   if (!context) { root.hidden = true; return; }
 
-  var LAND = window.__GLOBE_LAND__;
-  var RINGS = LAND.rings || [];
-  var Q = LAND.q || 1;
+  var DATA = window.__GLOBE_LAND__;
+  var COUNTRIES = DATA.countries || [];
+  var GROUPS = DATA.groups || {};
+  var Q = DATA.q || 1;
   var RAD = Math.PI / 180;
 
   /* Read the palette off the page rather than repeating it here, so the globe
@@ -49,10 +50,17 @@
      the Pacific to get from Tokyo to Seoul. */
   var lon = -10, lat = 25;
   var fromLon = lon, fromLat = lat, toLon = lon, toLat = lat;
-  var markLon = null, markLat = null;
+  var markLon = null, markLat = null, markCode = "";
+  /* The on-screen box of whatever this turn painted in the accent. A ring
+     around the point is the fallback for what a fill cannot answer: a code
+     with no shape in the data, and a country too small to see at 208px --
+     Albania is three pixels of accent without it. Measured in pixels rather
+     than in degrees or land area, because what matters is whether the reader
+     can see it. */
+  var markSpan = 0;
   var start = 0, duration = 0, frame = 0;
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
-  var size = 0, radius = 0;
+  var size = 0, radius = 0, centre = 0;
   var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function resize() {
@@ -62,89 +70,139 @@
     canvas.height = Math.round(size * dpr);
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
     radius = size / 2 - 1;
+    centre = size / 2;
     draw();
   }
 
-  /* Orthographic projection about (lon, lat). Returns null for points on the
-     far side of the sphere, which is what hides the back of the globe. */
+  /* Orthographic projection about (lon, lat), with the far side of the sphere
+     clamped onto the limb instead of discarded.
+     ---------------------------------------------------------------------
+     Dropping back-facing points and closing the path is what broke the first
+     version: a ring that leaves the visible hemisphere and comes back -- which
+     is every large landmass at the edge -- got closed with a straight chord
+     across the disc, so Eurasia filled the Atlantic. Pushing an invisible
+     point out to the rim at its own bearing keeps the ring continuous and
+     correct, and the circular clip below trims whatever lands outside.
+     out[2] carries the cosine of the angular distance, which is positive on
+     the near side; the caller uses it to skip rings that are entirely behind
+     the globe and to fade the marker over the rim. */
+  var out = [0, 0, 0];
   function project(pointLon, pointLat) {
     var dl = (pointLon - lon) * RAD;
     var p = pointLat * RAD;
     var c = lat * RAD;
-    var cosC = Math.sin(c) * Math.sin(p) + Math.cos(c) * Math.cos(p) * Math.cos(dl);
-    if (cosC < 0) return null;
-    return [
-      size / 2 + radius * Math.cos(p) * Math.sin(dl),
-      size / 2 - radius * (Math.cos(c) * Math.sin(p) - Math.sin(c) * Math.cos(p) * Math.cos(dl))
-    ];
+    var sinP = Math.sin(p), cosP = Math.cos(p);
+    var sinC = Math.sin(c), cosC0 = Math.cos(c);
+    var cosC = sinC * sinP + cosC0 * cosP * Math.cos(dl);
+    var x = radius * cosP * Math.sin(dl);
+    var y = -radius * (cosC0 * sinP - sinC * cosP * Math.cos(dl));
+    if (cosC < 0) {
+      var m = Math.sqrt(x * x + y * y) || 1e-6;
+      x = x / m * radius;
+      y = y / m * radius;
+    }
+    out[0] = centre + x;
+    out[1] = centre + y;
+    out[2] = cosC;
+    return out;
+  }
+
+  /* One ring, one fill. Accumulating every country into a single path and
+     filling once was the second bug: canvas fills nonzero, Natural Earth rings
+     do not share a winding direction, and a ring clamped round the limb can
+     end up enclosing half a continent -- so whatever sat inside it was punched
+     out as a hole and the globe rendered inside out. Filling each ring on its
+     own path cannot cancel. Two hundred-odd fills of a 208px canvas costs
+     nothing at this size.
+
+     Returns true when any part of the ring faces the viewer; a ring entirely
+     on the far side has collapsed onto the rim and must not be drawn. */
+  var box = [0, 0, 0, 0];  /* minX, maxX, minY, maxY of the last visible ring */
+  function fillRing(ring) {
+    var visible = false;
+    box[0] = box[2] = Infinity;
+    box[1] = box[3] = -Infinity;
+    context.beginPath();
+    for (var i = 0; i < ring.length; i += 2) {
+      var point = project(ring[i] / Q, ring[i + 1] / Q);
+      if (point[2] > 0) {
+        visible = true;
+        if (point[0] < box[0]) box[0] = point[0];
+        if (point[0] > box[1]) box[1] = point[0];
+        if (point[1] < box[2]) box[2] = point[1];
+        if (point[1] > box[3]) box[3] = point[1];
+      }
+      if (i === 0) context.moveTo(point[0], point[1]);
+      else context.lineTo(point[0], point[1]);
+    }
+    if (!visible) return false;
+    context.closePath();
+    context.fill();
+    return true;
+  }
+
+  function fillCountries() {
+    /* A flag that stands for a bloc paints every member: a brief flagged EU is
+       about the Union, not about Brussels. */
+    var wanted = markCode ? (GROUPS[markCode] || [markCode]) : [];
+    var active = [];
+    context.fillStyle = COLOURS.land;
+    for (var n = 0; n < COUNTRIES.length; n++) {
+      var entry = COUNTRIES[n];
+      if (entry[0] && wanted.indexOf(entry[0]) !== -1) { active.push(entry); continue; }
+      for (var r = 1; r < entry.length; r++) fillRing(entry[r]);
+    }
+    markSpan = 0;
+    if (!active.length) return;
+    /* The country the brief is about, drawn last and in the accent, so it
+       reads as the answer to "where" rather than as one more coastline. */
+    context.fillStyle = COLOURS.mark;
+    /* The biggest single piece, not the box round all of them: with the union,
+       Portugal plus the Azores measures as wide as France and loses the ring
+       that its mainland needs. What the reader sees is the largest blob. */
+    for (var a = 0; a < active.length; a++) {
+      for (var k = 1; k < active[a].length; k++) {
+        if (!fillRing(active[a][k])) continue;
+        var span = Math.max(box[1] - box[0], box[3] - box[2]);
+        if (span > markSpan) markSpan = span;
+      }
+    }
   }
 
   function strokeMeridians() {
     context.strokeStyle = COLOURS.grid;
     context.lineWidth = 1;
-    var step = 6;
-    var a, b, value, point, moved;
-    for (a = -180; a < 180; a += 30) {
+    var step = 6, value, point, moved;
+    function line(fixedLon, fixedLat, from, to) {
       context.beginPath();
       moved = false;
-      for (value = -90; value <= 90; value += step) {
-        point = project(a, value);
-        if (!point) { moved = false; continue; }
-        if (moved) context.lineTo(point[0], point[1]); else { context.moveTo(point[0], point[1]); moved = true; }
+      for (value = from; value <= to; value += step) {
+        point = project(fixedLon === null ? value : fixedLon, fixedLat === null ? value : fixedLat);
+        /* Graticule lines are strokes, not fills, so a break at the limb is
+           correct here -- there is nothing to close. */
+        if (point[2] <= 0) { moved = false; continue; }
+        if (moved) context.lineTo(point[0], point[1]);
+        else { context.moveTo(point[0], point[1]); moved = true; }
       }
       context.stroke();
     }
-    for (b = -60; b <= 60; b += 30) {
-      context.beginPath();
-      moved = false;
-      for (value = -180; value <= 180; value += step) {
-        point = project(value, b);
-        if (!point) { moved = false; continue; }
-        if (moved) context.lineTo(point[0], point[1]); else { context.moveTo(point[0], point[1]); moved = true; }
-      }
-      context.stroke();
-    }
-  }
-
-  function drawLand() {
-    context.fillStyle = COLOURS.land;
-    for (var r = 0; r < RINGS.length; r++) {
-      var ring = RINGS[r];
-      context.beginPath();
-      var open = false;
-      for (var i = 0; i < ring.length; i += 2) {
-        var point = project(ring[i] / Q, ring[i + 1] / Q);
-        if (!point) {
-          /* A ring that crosses the limb is closed off where it leaves, so the
-             visible part still fills instead of being dropped whole. */
-          if (open) { context.closePath(); context.fill(); context.beginPath(); open = false; }
-          continue;
-        }
-        if (open) context.lineTo(point[0], point[1]);
-        else { context.moveTo(point[0], point[1]); open = true; }
-      }
-      if (open) { context.closePath(); context.fill(); }
-    }
+    for (var a = -180; a < 180; a += 30) line(a, null, -90, 90);
+    for (var b = -60; b <= 60; b += 30) line(null, b, -180, 180);
   }
 
   function drawMark() {
     if (markLon === null) return;
     var point = project(markLon, markLat);
-    if (!point) return;
-    /* Fade the pin as it approaches the limb so it slides round the edge
+    if (point[2] <= 0) return;
+    /* A fill wider than the ring does not need one. */
+    if (markSpan > 26) return;
+    /* Fade the ring as it approaches the limb so it slides round the edge
        instead of blinking out. */
-    var dl = (markLon - lon) * RAD;
-    var p = markLat * RAD, c = lat * RAD;
-    var cosC = Math.sin(c) * Math.sin(p) + Math.cos(c) * Math.cos(p) * Math.cos(dl);
-    context.globalAlpha = Math.max(0, Math.min(1, cosC * 4));
+    context.globalAlpha = Math.max(0, Math.min(1, point[2] * 4));
     context.strokeStyle = COLOURS.mark;
-    context.fillStyle = COLOURS.mark;
     context.lineWidth = 2;
     context.beginPath();
-    context.arc(point[0], point[1], 3.5, 0, Math.PI * 2);
-    context.fill();
-    context.beginPath();
-    context.arc(point[0], point[1], 9, 0, Math.PI * 2);
+    context.arc(point[0], point[1], 10, 0, Math.PI * 2);
     context.stroke();
     context.globalAlpha = 1;
   }
@@ -152,18 +210,24 @@
   function draw() {
     if (!size) return;
     context.clearRect(0, 0, size, size);
-    context.fillStyle = COLOURS.ocean;
+    context.save();
+    /* Everything is drawn inside the disc. The limb clamp above can push a
+       vertex a fraction past the rim, and the clip is what keeps the sphere a
+       clean circle rather than a circle with burrs. */
     context.beginPath();
-    context.arc(size / 2, size / 2, radius, 0, Math.PI * 2);
-    context.fill();
+    context.arc(centre, centre, radius, 0, Math.PI * 2);
+    context.clip();
+    context.fillStyle = COLOURS.ocean;
+    context.fillRect(0, 0, size, size);
     strokeMeridians();
-    drawLand();
+    fillCountries();
+    drawMark();
+    context.restore();
     context.strokeStyle = COLOURS.edge;
     context.lineWidth = 1.5;
     context.beginPath();
-    context.arc(size / 2, size / 2, radius, 0, Math.PI * 2);
+    context.arc(centre, centre, radius, 0, Math.PI * 2);
     context.stroke();
-    drawMark();
   }
 
   function tick(now) {
@@ -175,25 +239,23 @@
     frame = t < 1 ? requestAnimationFrame(tick) : 0;
   }
 
-  function turnTo(targetLon, targetLat, label) {
-    markLon = targetLon;
-    markLat = targetLat;
-    if (nameEl) nameEl.textContent = label || "";
+  function turnTo(block) {
+    markLon = block.lon;
+    markLat = block.lat;
+    markCode = block.code;
+    if (nameEl) nameEl.textContent = block.label || "";
     /* Unwrap the target into the turn the viewer is already making, so a jump
        of 350 degrees is drawn as the 10 it really is. */
-    var delta = ((targetLon - lon + 540) % 360) - 180;
+    var delta = ((block.lon - lon + 540) % 360) - 180;
     fromLon = lon;
     fromLat = lat;
     toLon = lon + delta;
-    toLat = Math.max(-70, Math.min(70, targetLat));
-    if (reduced) {
-      lon = toLon; lat = toLat; draw();
-      return;
-    }
+    toLat = Math.max(-70, Math.min(70, block.lat));
+    if (reduced) { lon = toLon; lat = toLat; draw(); return; }
     duration = 300 + Math.min(900, Math.abs(delta) * 4);
     start = performance.now();
-    if (!frame) frame = requestAnimationFrame(tick);
-    else { frame = 0; frame = requestAnimationFrame(tick); }
+    if (frame) cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(tick);
   }
 
   /* Which block is the reader looking at: the last one whose top has passed
@@ -206,6 +268,7 @@
       el: el,
       lat: parseFloat(parts[0]),
       lon: parseFloat(parts[1]),
+      code: el.getAttribute("data-geo-code") || "",
       label: el.getAttribute("data-geo-label") || ""
     };
   }).filter(function (b) { return isFinite(b.lat) && isFinite(b.lon); });
@@ -225,41 +288,17 @@
     }
     if (chosen === currentBlock) return;
     currentBlock = chosen;
-    turnTo(chosen.lon, chosen.lat, chosen.label);
-  }
-
-  /* Past the masthead the globe docks into the bottom-right corner, so it is
-     still on screen for the stories it is tracking. The CSS decides whether a
-     dock is possible at all (three-column layouts only); here we just set the
-     flag and re-measure, because docking changes the canvas size. */
-  var masthead = document.querySelector(".masthead");
-  var docked = false;
-
-  function syncDock() {
-    if (!masthead) return;
-    var want = masthead.getBoundingClientRect().bottom < 8;
-    if (want === docked) return;
-    docked = want;
-    root.classList.toggle("is-docked", docked);
-    resize();
+    turnTo(chosen);
   }
 
   function onScroll() {
     if (pending) return;
     pending = true;
-    requestAnimationFrame(function () { syncDock(); pick(); });
+    requestAnimationFrame(pick);
   }
 
   window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", function () {
-    /* A window that crosses the three-column breakpoint while docked leaves
-       the globe fixed over the article, so drop the flag and let the next
-       scroll re-decide. */
-    if (docked) { docked = false; root.classList.remove("is-docked"); }
-    resize();
-    onScroll();
-  }, { passive: true });
+  window.addEventListener("resize", function () { resize(); onScroll(); }, { passive: true });
   resize();
-  syncDock();
   pick();
 })();
