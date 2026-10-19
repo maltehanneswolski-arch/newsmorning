@@ -797,56 +797,52 @@ footer { border-top: 2px solid var(--pale); margin-top: 8px; }
   color: var(--navy);
 }
 
-/* ---------- scrollbar ---------- */
+/* ---------- scrollbar and reading progress ---------- */
 
-/* The scrollbar is the one piece of furniture the browser draws for itself,
-   and the default grey gutter with its stepper arrows sits directly against a
-   page built from the four colours the photographs are dithered to. Both
-   syntaxes are here deliberately: Firefox and Chrome 121+ honour
-   `scrollbar-color`, older WebKit only honours the pseudo-elements, and a
-   browser that takes neither keeps its own control and loses nothing.
+/* The page draws no scrollbar. The one piece of furniture the browser renders
+   for itself was the only thing on the page not built from the dither palette,
+   and styling it took two syntaxes and a pile of caveats to half-succeed; the
+   bar along the bottom says where you are instead, and says it better on a
+   long read than a 14px gutter ever did.
 
-   Unscoped on purpose, so the rails that scroll their own overflow match the
-   page gutter instead of reverting to the system control halfway down. */
+   Scrolling itself is untouched -- wheel, trackpad, touch, keyboard and
+   find-in-page all behave exactly as before. Unscoped on purpose, as the
+   gutter rules were, so a rail that has to scroll its own overflow on a short
+   window does not reintroduce a system control halfway down the page. */
 html {
-  scrollbar-color: var(--navy) var(--page);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+::-webkit-scrollbar { width: 0; height: 0; }
 
-::-webkit-scrollbar { width: 14px; height: 14px; }
-
-::-webkit-scrollbar-track {
-  background: var(--page);
-  border-left: 1px solid var(--pale);
+/* The progress bar. Fixed to the bottom edge, so it clears the phone's home
+   indicator by sitting *above* the safe-area inset rather than under it.
+   It ships at zero width and assets/progress.js sets the rest; with no script
+   it is a hairline nobody notices rather than a bar stuck at empty. */
+.progress {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: env(safe-area-inset-bottom, 0px);
+  height: 4px;
+  z-index: 30;
+  background: var(--pale);
+  /* The track is only worth drawing once there is something to track. */
+  opacity: 0;
+  transition: opacity .25s ease;
+  pointer-events: none;
 }
-
-::-webkit-scrollbar-thumb {
-  background: var(--navy);
-  border-radius: 999px;
-  /* A transparent border clipped to the padding box floats the thumb inside
-     the track rather than filling the gutter edge to edge, which is what
-     makes it read as part of the page instead of bolted to it. */
-  border: 3px solid transparent;
-  background-clip: padding-box;
-}
-
-/* `background` is a shorthand and resets background-clip to border-box, so
-   each state has to restate the clip or the thumb snaps to full width on
-   hover. */
-::-webkit-scrollbar-thumb:hover {
-  background: var(--purple);
-  background-clip: padding-box;
-}
-
-::-webkit-scrollbar-thumb:active {
+.progress[data-on] { opacity: 1; }
+.progress span {
+  display: block;
+  height: 100%;
+  width: 0;
   background: var(--red);
-  background-clip: padding-box;
+  transform-origin: 0 50%;
 }
-
-/* Nothing on the page needs the steppers, and they are the part of the
-   default control that cannot be made to match anything. */
-::-webkit-scrollbar-button { display: none; }
-
-::-webkit-scrollbar-corner { background: var(--page); }
+@media (prefers-reduced-motion: reduce) {
+  .progress { transition: none; }
+}
 
 /* ---------- narrow screens ---------- */
 
