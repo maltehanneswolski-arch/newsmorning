@@ -40,6 +40,17 @@
      shell's own padding. Below this the layout steps down rather than
      squeezing the measure. */
   --shell-max: calc(var(--wide) + (2 * var(--rail)) + (2 * var(--gap)) + 48px);
+
+  /* The masthead globe reads these rather than carrying its own colours, so
+     it moves with the dither palette like everything else. The ocean is the
+     navy of the masthead darkened a shade so the sphere reads as an object
+     sitting on the header rather than as a hole cut in it; land is the pale,
+     which is what the photographs below dither their highlights to. */
+  --globe-ocean: #0d1570;
+  --globe-land: var(--pale);
+  --globe-grid: rgba(255, 255, 255, .16);
+  --globe-edge: rgba(255, 255, 255, .34);
+  --globe-mark: var(--red);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -92,6 +103,21 @@ a:hover, a:focus-visible { color: var(--red); }
   margin: 0 auto;
   padding: 44px 24px 40px;
 }
+/* Only the markup that actually has a .masthead-text wrapper becomes a flex
+   row. Editions published before the globe existed put the eyebrow, headline
+   and standfirst straight into .masthead-inner, and turning that into a flex
+   container would lay them out side by side. The stylesheet is shared by every
+   edition ever published, so new furniture gets a new class rather than a new
+   meaning for an old one. */
+.masthead-split {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+}
+/* The text takes whatever the globe leaves. min-width:0 because a flex item
+   defaults to min-content and a long unbroken headline word would otherwise
+   push the globe off the right edge instead of wrapping. */
+.masthead-text { flex: 1 1 auto; min-width: 0; }
 @media (min-width: 1080px) {
   .masthead-inner { max-width: calc(var(--wide) + var(--rail) + var(--gap) + 48px); }
 }
@@ -126,6 +152,80 @@ a:hover, a:focus-visible { color: var(--red); }
   margin: 10px 0 0;
   color: var(--pale);
   font-size: 15px;
+}
+
+/* ---------- masthead globe ----------
+   Decorative, and built to disappear cleanly: the element ships hidden to
+   assistive tech, assets/globe.js hides it outright when there is no canvas or
+   no land data, and the layout below does not depend on it being there.
+
+   It is suppressed under 900px rather than shrunk. On a phone the masthead is
+   already a full screen of headline and the globe would push the first brief
+   below two scrolls of furniture, and a 120px sphere cannot show which country
+   is marked anyway, which is the only thing it is for. */
+.globe {
+  display: none;
+  flex: 0 0 auto;
+  width: 220px;
+  text-align: center;
+}
+.globe canvas {
+  display: block;
+  width: 220px;
+  height: 220px;
+  /* The sphere is drawn to the edge of the canvas, so the shadow has to be a
+     circle too or it boxes the globe. */
+  border-radius: 50%;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .3);
+}
+.globe-name {
+  margin: 12px 0 0;
+  min-height: 1.3em;
+  color: var(--pale);
+  font-size: 13px;
+  line-height: 1.3;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+@media (min-width: 900px) {
+  .globe { display: block; }
+}
+
+/* Docked: the globe is only useful while you are reading, and the masthead
+   scrolls away after one screen. Past it, assets/globe.js moves the globe to
+   the bottom-right corner so it keeps turning in view.
+
+   Only in the three-column layout. Narrower than that there is no empty right
+   margin to dock into -- the corner is over the article -- so the globe stays
+   in the masthead and simply leaves with it, still showing the lead story's
+   country. pointer-events:none throughout: it is decoration and must never
+   land on top of a link.
+
+   The masthead keeps the space so the headline does not reflow mid-scroll. */
+.globe { pointer-events: none; }
+.globe-dock-space { display: none; }
+@media (min-width: 1400px) {
+  .globe.is-docked {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    top: auto;
+    width: 136px;
+    z-index: 20;
+  }
+  .globe.is-docked canvas { width: 136px; height: 136px; }
+  .globe.is-docked .globe-name {
+    margin-top: 8px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--navy);
+    color: var(--white);
+    font-size: 11px;
+  }
+  .is-docked + .globe-dock-space { display: block; flex: 0 0 auto; width: 220px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .globe canvas { transition: width .25s ease, height .25s ease; }
 }
 
 /* ---------- page shell ----------
@@ -164,13 +264,13 @@ a:hover, a:focus-visible { color: var(--red); }
   padding: 20px;
 }
 .rail-label {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   font-size: 13px;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--purple);
 }
-.rail-label-more { margin-top: 20px; }
+.rail-label-more { margin-top: 14px; }
 .rail a { text-decoration: none; }
 .rail a:hover, .rail a:focus-visible { text-decoration: underline; }
 
@@ -180,22 +280,41 @@ a:hover, a:focus-visible { color: var(--red); }
   list-style: none;
   counter-reset: toc;
 }
+/* The number and the title are flex siblings rather than a ::before glued to
+   the front of the link. The link is a -webkit-box so it can be line-clamped,
+   and a box is a block: left inline, the counter got a line of its own above
+   every entry, which cost more vertical space than the clamp saved. */
 .rail-briefs li {
   counter-increment: toc;
-  margin-bottom: 10px;
+  display: flex;
+  gap: 5px;
+  margin-bottom: 7px;
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 .rail-briefs li::before {
-  content: counter(toc) ". ";
+  content: counter(toc) ".";
+  flex: 0 0 auto;
   color: var(--purple);
+}
+/* The renderer already cuts the title to about 46 characters; this is the
+   backstop for the one that still wraps to three lines in a narrow rail,
+   because a single long entry is all it takes to push the list past the
+   viewport and give the rail a scrollbar of its own. The full title stays on
+   the link's title attribute either way. */
+.rail-briefs a {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-width: 0;
 }
 .rail-standing {
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.rail-standing li { margin-bottom: 9px; font-size: 14px; line-height: 1.4; }
+.rail-standing li { margin-bottom: 6px; font-size: 14px; line-height: 1.35; }
 
 .archive-list { margin: 0; padding: 0; list-style: none; }
 .archive-list li + li { border-top: 1px solid var(--pale); }
@@ -218,7 +337,7 @@ a:hover, a:focus-visible { color: var(--red); }
 .archive-list .is-current a { color: var(--navy); cursor: default; }
 .archive-list .is-current .when { color: var(--red); }
 .archive-list .is-current .what { font-weight: bold; }
-.rail-more { margin: 14px 0 0; font-size: 14px; }
+.rail-more { margin: 12px 0 0; font-size: 14px; }
 .rail-more a::after { content: " \2192"; }
 
 /* Two columns: contents beside the article, archive as a band underneath.
@@ -253,8 +372,13 @@ a:hover, a:focus-visible { color: var(--red); }
 }
 
 /* Sticky needs the rail stretched to the full row height (the grid default) so
-   the inner box has somewhere to travel. A rail taller than the viewport
-   scrolls its own overflow rather than pinning its tail out of reach. */
+   the inner box has somewhere to travel.
+
+   The max-height is a safety net for a short window or a very long edition,
+   not the intended state: the entries are cut to two lines each so the list
+   fits a laptop screen outright. overflow-y:auto rather than scroll, so the
+   rail shows no gutter on the days it does fit -- which should be all of
+   them. */
 @media (min-width: 1080px) {
   .rail-contents .rail-inner {
     position: sticky;
