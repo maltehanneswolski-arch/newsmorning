@@ -139,19 +139,21 @@ a:hover, a:focus-visible { color: var(--red); }
   font-size: 15px;
 }
 
-/* ---------- rail globe ----------
-   It sits at the top of the archive rail rather than in the masthead, because
-   it is only useful while you are reading and the masthead scrolls away after
-   one screen. That rail is sticky from 1400px up, which is the width at which
-   it is a column beside the article; below that it is a band under the
-   briefing, where a globe tracking what you are reading would be out of sight,
-   so it is not drawn at all.
+/* ---------- globe box ----------
+   Its own card at the top of the right column, above the editions. It is only
+   useful while you are reading, and the masthead scrolls away after one
+   screen, so it sits in the column that sticks rather than in the header.
 
-   Decoration, and built to disappear cleanly: the element is aria-hidden,
+   That column is a side column from 1400px up and a band under the article
+   below that, where a globe tracking what you are reading would be out of
+   sight -- so below 1400px it is not drawn at all.
+
+   Decoration, and built to disappear cleanly: the box is aria-hidden,
    assets/globe.js hides it outright when there is no canvas or no shape data,
    and nothing in the layout depends on it being there. */
-.globe { display: none; }
-.globe canvas {
+.rail-globe { display: none; }
+.rail-globe .rail-inner { padding: 16px; }
+.rail-globe canvas {
   display: block;
   width: 100%;
   height: auto;
@@ -162,9 +164,9 @@ a:hover, a:focus-visible { color: var(--red); }
   box-shadow: 0 6px 18px rgba(8, 14, 99, .22);
 }
 .globe-name {
-  /* Reserve the line whether or not a country is named, so the editions below
-     do not jump a row every time the globe turns. */
-  margin: 10px 0 0;
+  /* Reserve the line whether or not a country is named, so the box does not
+     change height every time the globe turns. */
+  margin: 12px 0 2px;
   min-height: 1.3em;
   color: var(--purple);
   font-size: 12px;
@@ -174,11 +176,7 @@ a:hover, a:focus-visible { color: var(--red); }
   text-align: center;
 }
 @media (min-width: 1400px) {
-  .globe { display: block; }
-  /* The globe is the top of the rail, so the editions heading below it needs
-     the separating space that only the second heading in a rail normally
-     gets. */
-  .globe + .rail-label-more { margin-top: 18px; }
+  .rail-globe { display: block; }
 }
 
 /* ---------- page shell ----------
@@ -207,7 +205,16 @@ a:hover, a:focus-visible { color: var(--red); }
    tracks beside it. */
 .shell-solo { max-width: var(--wide); grid-template-columns: minmax(0, 1fr); grid-template-areas: "main"; }
 .rail-contents { grid-area: toc; }
-.rail-archive { grid-area: arc; }
+/* The right column holds two boxes now -- the globe and the editions -- so the
+   grid area belongs to the stack and the boxes inside it are ordinary cards
+   with the column's gap between them. */
+.rail-stack {
+  grid-area: arc;
+  display: grid;
+  gap: var(--gap);
+  align-content: start;
+  min-width: 0;
+}
 
 .rail { min-width: 0; }
 .rail-inner {
@@ -340,8 +347,10 @@ a:hover, a:focus-visible { color: var(--red); }
     overflow-y: auto;
   }
 }
+/* The whole right column sticks, not each box in it: two sticky siblings
+   would overlap as the first one ran out of travel. */
 @media (min-width: 1400px) {
-  .rail-archive .rail-inner {
+  .rail-stack {
     position: sticky;
     top: 20px;
     max-height: calc(100vh - 40px);
