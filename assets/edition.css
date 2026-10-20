@@ -124,10 +124,28 @@ a:hover, a:focus-visible { color: var(--red); }
   line-height: 1.08;
   letter-spacing: -.01em;
 }
-.masthead .dateline {
+/* Editions published before the date moved onto the headline carry it as a
+   block paragraph under the h1. This stylesheet is shared by every edition
+   ever published, so their rule has to stay or the whole archive loses its
+   dateline the morning the markup changes. */
+.masthead p.dateline {
   margin: 18px 0 0;
   color: var(--pale);
   font-size: 15px;
+}
+/* The date rides on the headline's last line instead of taking a line of its
+   own. It sits inside the h1 so it follows the final word wherever that word
+   lands, and it has to opt out of everything the h1 sets -- weight, size and
+   the negative tracking -- or it stops reading as a label and starts reading
+   as the end of the title. nowrap keeps "20 October 2026" from breaking
+   across the wrap it is already riding on. */
+.masthead h1 .dateline {
+  margin-left: .55em;
+  color: var(--pale);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 /* The standfirst runs the full width of the masthead rather than stopping at
    the reading measure: it is two short clauses of provenance, not body copy,
