@@ -468,6 +468,23 @@ section h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.25; }
   line-height: 1.6;
 }
 
+/* Body copy is justified in every box that carries prose, so the right-hand
+   edge of a card lines up with the art band and the pull quote above it.
+   Hyphenation is not optional here: the measure is the full 880px card, and
+   justifying that without letting the browser break words opens rivers of
+   white space wide enough to read as a layout fault. `lang` is set on <html>,
+   which is what the hyphenation dictionary keys off. Prose only -- never the
+   tracker's country column, the kickers or the source lines, where a
+   stretched line of two or three words looks broken rather than even. */
+.brief .summary,
+.tracker td p,
+.event p,
+.player-body p {
+  text-align: justify;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
 .art { margin: 22px 0 0; }
 .art img {
   display: block;
