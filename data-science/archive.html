@@ -91,20 +91,18 @@
         .edition .title { font-size: 19px; }
       }
 
-      .series-bar { position: sticky; top: 0; z-index: 6; background: var(--page);
-        border-bottom: 1px solid var(--pale); margin: -16px -16px 16px; }
-      .series-bar-inner { max-width: 780px; margin: 0 auto; padding: 10px 16px; box-sizing: border-box;
-        display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; min-height: 64px; }
-      .series-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
-      .series-tab { display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box;
-        padding: 0 18px; border: 1px solid var(--soft); border-radius: 999px; color: var(--navy);
-        font-size: 12px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
-        text-decoration: none; white-space: nowrap; transition: border-color .25s, transform .25s; }
-      .series-tab:hover, .series-tab:focus { border-color: var(--red); transform: translateY(-1px); }
-      .series-tab[aria-current="page"] { background: var(--navy); border-color: var(--navy); color: #fff; }
-      .series-links { margin: 0 0 0 auto; display: flex; gap: 18px; font-size: 14px; }
-      .series-links a { color: var(--purple); }
-      @media (max-width: 640px) { .series-tab { padding: 0 14px; letter-spacing: .1em; } .series-links { display: none; } }
+      .series-bar { position: sticky; top: 0; z-index: 6; background: #fff;
+        border-bottom: 1px solid var(--navy); margin: -16px -16px 16px; }
+      .series-tabs { display: grid; grid-template-columns: 1fr 1fr; }
+      .series-tab { display: flex; align-items: center; justify-content: center; min-height: 64px;
+        padding: 0 12px; background: #fff; color: var(--navy); text-decoration: none;
+        font: 500 12.5px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+        letter-spacing: .18em; text-transform: uppercase; }
+      .series-tab + .series-tab { border-left: 1px solid var(--navy); }
+      .series-tab:hover, .series-tab:focus { background: var(--card); }
+      .series-tab[aria-current="page"] { background: var(--navy); color: #fff; }
+      .series-links { display: none; }
+      @media (max-width: 640px) { .series-tab { font-size: 11px; letter-spacing: .1em; } }
 
     </style>
   </head>
