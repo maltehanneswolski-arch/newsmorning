@@ -1005,72 +1005,68 @@ html {
 
 :root { --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; }
 
-/* ---------- compact masthead ----------
-   One row: the edition label and headline with its date on the left, the
-   provenance line on the right, so the header costs a single band. It is the
-   inverse of the page under it -- ink with white type over the beige Foreign
-   Policy page, the beige with ink type over the dark AI page -- so each
-   edition's header and body read as a matched pair. The China taskforce's
-   spaced monospaced eyebrow stays; the star, slab and figures row do not. */
+/* ---------- masthead ----------
+   One grid on both editions, so the two headers line up exactly:
+     row 1  edition label and date            | the edition switch
+     row 2  headline (full width)
+     row 3  the week, Monday to Sunday        | where the edition was written from
+   The band is the inverse of the page under it -- ink with white type over
+   the beige Foreign Policy page, beige with ink type over the dark AI page --
+   and everything in it (switch included) is drawn from --header-bg and
+   --header-ink, so it inverts with it. The China taskforce's language stays:
+   spaced monospaced labels, the two-halved pill. No star, slab or figures. */
 
 :root { --c-page: var(--page); }
 .v2 { --header-bg: var(--navy); --header-ink: var(--white); }
 body.v2.series-inverse { --header-bg: var(--c-page); --header-ink: var(--c-ink); }
 
-.v2 .masthead-compact {
-  background: var(--header-bg);
-  color: var(--header-ink);
-  border-bottom: 0;
+.v2 .masthead-v2 { background: var(--header-bg); color: var(--header-ink); border-bottom: 0; }
+.v2 .masthead-v2 .masthead-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "eyebrow switch"
+    "title   title"
+    "week    stand";
+  align-items: center;
+  gap: 18px 40px;
+  padding: 26px 24px 24px;
 }
-.v2 .masthead-compact .masthead-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 10px 40px;
-  padding: 18px 24px 16px;
-  text-align: left;
+@media (min-width: 1080px) {
+  .v2 .masthead-v2 .masthead-inner { max-width: calc(var(--wide) + var(--rail) + var(--gap) + 48px); }
 }
-.v2 .masthead-title { flex: 1 1 520px; min-width: 0; }
-.v2 .masthead-compact .eyebrow {
+@media (min-width: 1400px) {
+  .v2 .masthead-v2 .masthead-inner { max-width: var(--shell-max); }
+}
+.v2 .masthead-v2 .eyebrow {
+  grid-area: eyebrow;
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 0 0 6px;
+  margin: 0;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: .2em;
   color: var(--header-ink);
-  opacity: .8;
+  opacity: .85;
 }
-.v2 .masthead-compact .eyebrow::before {
-  content: "";
-  width: 24px;
-  height: 1px;
-  background: currentColor;
-}
-.v2 .masthead-compact .eyebrow a { color: inherit; text-decoration: none; }
-.v2 .masthead-compact .eyebrow-date { letter-spacing: .14em; }
-.v2 .masthead-compact .eyebrow a:hover, .v2 .masthead-compact .eyebrow a:focus-visible { text-decoration: underline; }
-.v2 .masthead-compact h1 {
+.v2 .masthead-v2 .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+.v2 .masthead-v2 .eyebrow a { color: inherit; text-decoration: none; }
+.v2 .masthead-v2 .eyebrow a:hover, .v2 .masthead-v2 .eyebrow a:focus-visible { text-decoration: underline; }
+.v2 .masthead-v2 .eyebrow-date { letter-spacing: .14em; }
+.v2 .masthead-v2 h1 {
+  grid-area: title;
   margin: 0;
+  max-width: 30ch;
   color: var(--header-ink);
-  font-size: clamp(22px, 2.4vw, 32px);
-  line-height: 1.15;
-  letter-spacing: -.015em;
+  font-size: clamp(30px, 3.8vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -.025em;
+  text-wrap: balance;
 }
-.v2 .masthead-compact h1 .dateline {
-  display: inline;
-  margin-left: .6em;
-  color: var(--header-ink);
-  opacity: .75;
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0;
-  white-space: nowrap;
-}
-.v2 .masthead-compact .standfirst {
-  flex: 0 1 380px;
+.v2 .masthead-v2 .standfirst {
+  grid-area: stand;
+  max-width: 400px;
   margin: 0;
   color: var(--header-ink);
   opacity: .8;
@@ -1078,81 +1074,118 @@ body.v2.series-inverse { --header-bg: var(--c-page); --header-ink: var(--c-ink);
   line-height: 1.45;
   text-align: right;
 }
-@media (min-width: 1080px) {
-  .v2 .masthead-compact .masthead-inner { max-width: calc(var(--wide) + var(--rail) + var(--gap) + 48px); }
-}
-@media (min-width: 1400px) {
-  .v2 .masthead-compact .masthead-inner { max-width: var(--shell-max); }
-}
-@media (max-width: 760px) {
-  .v2 .masthead-compact .masthead-inner { padding: 14px 16px 12px; }
-  .v2 .masthead-compact .standfirst { flex-basis: 100%; text-align: left; }
-}
 
-/* ---------- the two editions as one two-halved switch ----------
-   Like the taskforce's Workshop I / Workshop II switch: Foreign Policy on the
-   left half, Data Science & AI on the right, the current one filled with the
-   ink. It sits centred over the content, not across the whole window. */
-
-.v2 .series-bar { background: var(--page); border-bottom: 1px solid var(--pale); }
-.v2 .series-bar-inner {
-  max-width: 640px;
-  min-height: 0;
-  margin: 0 auto;
-  padding: 10px 24px;
-  display: block;
-}
+/* The switch: two halves of one pill, in the header's own two colours. */
 .v2 .series-tabs {
+  grid-area: switch;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0;
-  border: 1.5px solid var(--navy);
+  width: min(440px, 100%);
+  border: 1.5px solid var(--header-ink);
   border-radius: 999px;
   overflow: hidden;
-  background: var(--white);
 }
 .v2 .series-tab {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: 42px;
   padding: 0 14px;
-  border: 0;
   border-radius: 999px;
-  background: transparent;
-  color: var(--navy);
-  font-size: 12px;
+  color: var(--header-ink);
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 11.5px;
   letter-spacing: .16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .3s ease, color .3s ease;
 }
 .v2 .series-tab:hover, .v2 .series-tab:focus-visible {
-  background: var(--card);
-  color: var(--navy);
-  transform: none;
+  background: color-mix(in srgb, var(--header-ink) 14%, transparent);
 }
 .v2 .series-tab[aria-current="page"],
 .v2 .series-tab[aria-current="page"]:hover {
-  background: var(--navy);
-  color: var(--white);
+  background: var(--header-ink);
+  color: var(--header-bg);
 }
-.v2 .series-links { display: none; }
-@media (max-width: 640px) {
-  .v2 .series-bar-inner { padding: 8px 16px; }
-  .v2 .series-tab { font-size: 10.5px; letter-spacing: .08em; padding: 0 6px; }
+
+/* The week: Monday to Sunday, the edition's day filled, earlier days that
+   have an edition as links, days still to come quiet. */
+.v2 .week-strip { grid-area: week; display: flex; align-items: center; gap: 16px; min-width: 0; }
+.v2 .week-no {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: .8;
 }
-:root { --series-bar-h: 66px; }
+.v2 .week-strip ol { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.v2 .week-strip li > * {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 44px;
+  padding: 6px 4px 5px;
+  border: 1px solid color-mix(in srgb, var(--header-ink) 35%, transparent);
+  border-radius: 10px;
+  color: var(--header-ink);
+  text-decoration: none;
+  line-height: 1.1;
+}
+.v2 .week-strip .wd { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+.v2 .week-strip .dn { font-size: 16px; font-weight: bold; font-variant-numeric: tabular-nums; }
+.v2 .week-strip a:hover, .v2 .week-strip a:focus-visible { background: color-mix(in srgb, var(--header-ink) 14%, transparent); }
+.v2 .week-strip .is-today > * { background: var(--header-ink); color: var(--header-bg); border-color: var(--header-ink); }
+.v2 .week-strip .is-today .wd { opacity: 1; }
+.v2 .week-strip .is-future > *, .v2 .week-strip .is-empty > * { opacity: .45; border-style: dashed; }
+
+@media (max-width: 900px) {
+  .v2 .masthead-v2 .masthead-inner {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "eyebrow" "switch" "title" "week" "stand";
+    gap: 14px;
+    padding: 18px 16px;
+  }
+  .v2 .series-tabs { width: 100%; }
+  .v2 .masthead-v2 .standfirst { text-align: left; max-width: none; }
+  .v2 .week-strip { flex-wrap: wrap; gap: 8px; }
+  .v2 .week-strip ol { gap: 4px; }
+  .v2 .week-strip li > * { min-width: 38px; }
+}
+@media (max-width: 420px) {
+  .v2 .series-tab { font-size: 10px; letter-spacing: .06em; padding: 0 6px; }
+  .v2 .week-strip li > * { min-width: 0; width: 38px; }
+}
 
 /* ---------- switching editions ----------
-   Moving between the two editions is a page load, so the animation is a
-   cross-document view transition: the filled half of the switch is one named
-   element on both pages and slides across to the other half, while the rest
-   of the page cross-fades from one colour scheme into the other. Browsers
-   without view transitions (Firefox today) get the short rise-in on <main>
-   instead; reduced motion turns both off. */
+   A page load, smoothed three ways. The other edition's front page is
+   prerendered (speculation rules in each page's <head>), so there is no
+   blank load in the middle. The swap is a cross-document view transition:
+   one slow, eased cross-fade between the two colour schemes, with the filled
+   half of the switch sliding across on top of it. And where view transitions
+   exist, the rise-in on <main> is switched off -- running both made the
+   change look like two animations fighting. Browsers without view
+   transitions keep only the rise-in; reduced motion turns everything off. */
 
 @view-transition { navigation: auto; }
 .v2 .series-tab[aria-current="page"] { view-transition-name: series-current; }
-::view-transition-group(series-current) { animation-duration: .45s; animation-timing-function: cubic-bezier(.2, .7, .2, 1); }
-::view-transition-old(root), ::view-transition-new(root) { animation-duration: .4s; }
-@keyframes v2-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-.v2 main, .v2 .rail { animation: v2-rise .4s cubic-bezier(.2, .7, .2, 1) both; }
+::view-transition-old(root), ::view-transition-new(root) {
+  animation-duration: .55s;
+  animation-timing-function: cubic-bezier(.4, 0, .2, 1);
+}
+::view-transition-group(series-current) {
+  animation-duration: .55s;
+  animation-timing-function: cubic-bezier(.4, 0, .2, 1);
+}
+::view-transition-old(series-current), ::view-transition-new(series-current) { height: 100%; }
+@keyframes v2-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.v2 main, .v2 .rail { animation: v2-rise .45s cubic-bezier(.2, .7, .2, 1) both; }
+@supports (view-transition-name: none) {
+  .v2 main, .v2 .rail { animation: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
   .v2 main, .v2 .rail { animation: none; }
@@ -1229,7 +1262,7 @@ body.v2.series-inverse {
   }
   .v2 .brief-side-inner {
     position: sticky;
-    top: calc(var(--series-bar-h) + 24px);
+    top: 24px;
   }
   .v2 .brief-body .art img { height: clamp(200px, 22vw, 320px); }
 }
