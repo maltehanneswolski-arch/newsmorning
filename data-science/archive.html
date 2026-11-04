@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Daily AI Briefing &middot; archive</title>
+    <meta name="description" content="Every edition of Every edition of a daily briefing on AI policy, industry and practice, written from the morning&#x27;s AI newsletters and news feeds..">
+    <style>
+      :root {
+        --navy: #080e63;
+        --purple: #6538b7;
+        --red: #fd3030;
+        --pale: #a1c9ce;
+        --card: #dbeaec;
+        --soft: #485d90;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 16px;
+        background: #c8d8db;
+        color: var(--navy);
+        font: 16px/1.45 Tahoma, Geneva, sans-serif;
+      }
+      .wrap { max-width: 780px; margin: 0 auto; }
+      header {
+        background: var(--navy);
+        color: #fff;
+        border-radius: 9px;
+        border-bottom: 5px solid var(--red);
+        padding: 24px 20px;
+      }
+      /* Links inside the navy header take the pale tone: the body link purple
+         is close to unreadable on that background. */
+      header a { color: var(--pale); }
+      header a:hover, header a:focus { color: #fff; }
+      header .eyebrow a { color: var(--pale); text-decoration: none; }
+      header .eyebrow a:hover, header .eyebrow a:focus { color: #fff; }
+      header .eyebrow {
+        color: var(--pale);
+        font-size: 13px;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 6px;
+      }
+      header h1 { margin: 0; font-size: 30px; line-height: 1.15; }
+      header p { margin: 10px 0 0; color: var(--pale); font-size: 14px; }
+      ul { list-style: none; margin: 16px 0 0; padding: 0; }
+      .edition { margin-bottom: 16px; }
+      .edition a {
+        display: block;
+        background: var(--card);
+        border: 2px solid var(--pale);
+        border-radius: 10px;
+        padding: 20px;
+        text-decoration: none;
+        color: inherit;
+      }
+      .edition a:hover, .edition a:focus { border-color: var(--purple); }
+      .edition .eyebrow {
+        display: block;
+        color: var(--purple);
+        font-size: 13px;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .edition .title { display: block; font-size: 22px; line-height: 1.25; }
+      .edition .meta { display: block; margin-top: 10px; color: var(--soft); font-size: 13px; }
+      footer { margin-top: 24px; color: var(--navy); font-size: 13px; }
+      footer a { color: var(--purple); }
+      /* Same gutter as the editions, for the same reason: the browser's own
+         grey control is the one thing on the page that is not made of these
+         four colours. Kept in step with assets/edition.css by hand, because
+         this page carries its own style block rather than the stylesheet. */
+      html { scrollbar-color: var(--navy) #c8d8db; }
+      ::-webkit-scrollbar { width: 14px; height: 14px; }
+      ::-webkit-scrollbar-track { background: #c8d8db; border-left: 1px solid var(--pale); }
+      ::-webkit-scrollbar-thumb {
+        background: var(--navy);
+        border-radius: 999px;
+        border: 3px solid transparent;
+        background-clip: padding-box;
+      }
+      ::-webkit-scrollbar-thumb:hover { background: var(--purple); background-clip: padding-box; }
+      ::-webkit-scrollbar-thumb:active { background: var(--red); background-clip: padding-box; }
+      ::-webkit-scrollbar-button { display: none; }
+      @media (max-width: 480px) {
+        header h1 { font-size: 24px; }
+        .edition .title { font-size: 19px; }
+      }
+
+      .series-bar { position: sticky; top: 0; z-index: 6; background: var(--page);
+        border-bottom: 1px solid var(--pale); margin: -16px -16px 16px; }
+      .series-bar-inner { max-width: 780px; margin: 0 auto; padding: 10px 16px; box-sizing: border-box;
+        display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; min-height: 64px; }
+      .series-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+      .series-tab { display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box;
+        padding: 0 18px; border: 1px solid var(--soft); border-radius: 999px; color: var(--navy);
+        font-size: 12px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
+        text-decoration: none; white-space: nowrap; transition: border-color .25s, transform .25s; }
+      .series-tab:hover, .series-tab:focus { border-color: var(--red); transform: translateY(-1px); }
+      .series-tab[aria-current="page"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+      .series-links { margin: 0 0 0 auto; display: flex; gap: 18px; font-size: 14px; }
+      .series-links a { color: var(--purple); }
+      @media (max-width: 640px) { .series-tab { padding: 0 14px; letter-spacing: .1em; } .series-links { display: none; } }
+
+    </style>
+  </head>
+  <body>
+    <div class="series-bar">
+      <div class="series-bar-inner">
+        <nav class="series-tabs" aria-label="Editions"><a class="series-tab" href="../">Foreign Policy</a><a class="series-tab" href="../data-science/" aria-current="page">Data Science &amp; AI</a></nav>
+        <p class="series-links"><a href="archive.html">All editions</a>
+          <a href="../bookmarks.html">Saved items</a></p>
+      </div>
+    </div>
+    <div class="wrap">
+      <header>
+        <span class="eyebrow"><a href="./">Daily AI Briefing</a></span>
+        <h1>Archive</h1>
+        <p>Every edition of Every edition of a daily briefing on AI policy, industry and practice, written from the morning's AI newsletters and news feeds., written from the morning's newsletters and news feeds. 1 editions; the newest is <a href="./">on the front page</a>.</p>
+      </header>
+      <ul>
+      <li class="edition">
+        <a href="editions/2026-11-04.html">
+          <span class="eyebrow">Latest edition</span>
+          <span class="title">Anthropic files its numbers as the midterms turn on data centres</span>
+          <span class="meta">4 November 2026 &middot; 7 sections</span>
+        </a>
+      </li>
+      </ul>
+      <footer>
+        <p>Every claim links to its source in the <a href="https://maltehanneswolski-arch.github.io/newsletter-digest-appendix/source-appendix-data-science.html">source appendix</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>
