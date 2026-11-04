@@ -379,6 +379,105 @@ a:hover, a:focus-visible { color: var(--red); }
 /* Anchors land below the sticky offset instead of under the viewport edge. */
 .brief, .tracker, .radar, .horizon, .players { scroll-margin-top: 20px; }
 
+/* ---------- series bar ---------- */
+
+/* The switch between the two editions. A full-width bar directly under the
+   masthead that pins to the top of the window, so it is one click away at any
+   depth -- the masthead itself scrolls off after one screen. The shape is the
+   China taskforce site's tab bar: pills in small spaced capitals, the current
+   one filled with the ink, the other outlined. The colours are this site's
+   own roles, so the bar rotates with the palette of the day like everything
+   else. Only pages that carry the bar set .has-series-bar, which is what
+   moves the sticky rails down below it; editions published before the bar
+   existed share this stylesheet and keep their old offsets. */
+:root { --series-bar-h: 64px; }
+.series-bar {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background: var(--page);
+  border-bottom: 1px solid var(--pale);
+}
+.series-bar-inner {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 10px 24px;
+  min-height: var(--series-bar-h);
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+@media (min-width: 1080px) {
+  .series-bar-inner { max-width: calc(var(--wide) + var(--rail) + var(--gap) + 48px); }
+}
+@media (min-width: 1400px) {
+  .series-bar-inner { max-width: var(--shell-max); }
+}
+.series-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.series-tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 18px;
+  border: 1px solid var(--soft);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .25s, color .25s, border-color .25s, transform .25s;
+}
+.series-tab:hover, .series-tab:focus-visible {
+  border-color: var(--red);
+  color: var(--navy);
+  transform: translateY(-1px);
+}
+.series-tab[aria-current="page"] {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--white);
+}
+.series-tab[aria-current="page"]:hover { transform: none; }
+.series-links {
+  margin: 0 0 0 auto;
+  display: flex;
+  gap: 18px;
+  font-size: 14px;
+}
+@media (max-width: 640px) {
+  .series-bar-inner { padding: 8px 16px; }
+  .series-tab { padding: 0 14px; letter-spacing: .1em; }
+  /* On a phone the two pills are the bar; the links are in the footer. */
+  .series-links { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .series-tab { transition: none; }
+  .series-tab:hover, .series-tab:focus-visible { transform: none; }
+}
+@media (min-width: 1080px) {
+  .has-series-bar .rail-contents .rail-inner {
+    top: calc(var(--series-bar-h) + 20px);
+    max-height: calc(100vh - var(--series-bar-h) - 40px);
+  }
+}
+@media (min-width: 1400px) {
+  .has-series-bar .rail-stack {
+    top: calc(var(--series-bar-h) + 20px);
+    max-height: calc(100vh - var(--series-bar-h) - 40px);
+  }
+}
+.has-series-bar .brief, .has-series-bar .tracker, .has-series-bar .radar,
+.has-series-bar .horizon, .has-series-bar .players {
+  scroll-margin-top: calc(var(--series-bar-h) + 20px);
+}
+
 /* ---------- contents (legacy full-width band) ---------- */
 
 .contents { background: var(--white); border-bottom: 2px solid var(--pale); }

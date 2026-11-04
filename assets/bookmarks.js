@@ -108,6 +108,10 @@
     var edition = body.getAttribute("data-edition") || "";
     var editionTitle = body.getAttribute("data-edition-title") || edition;
     var path = body.getAttribute("data-edition-path") || "";
+    // Both series publish an edition per day with the same anchors, so the
+    // second series namespaces its ids. The first keeps the bare form, which
+    // is what every item saved before the second series existed carries.
+    var series = body.getAttribute("data-series") || "";
 
     if (!store) return; // Buttons stay hidden: saving would not survive.
 
@@ -117,7 +121,7 @@
     for (var i = 0; i < buttons.length; i++) {
       (function (button) {
         var anchor = button.getAttribute("data-bm-anchor") || "";
-        var id = edition + "#" + anchor;
+        var id = (series ? series + ":" : "") + edition + "#" + anchor;
         button.removeAttribute("hidden");
         setPressed(button, byId(items, id) !== -1);
 
