@@ -1006,50 +1006,87 @@ html {
 :root { --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; }
 
 /* ---------- compact masthead ----------
-   The China taskforce header's layout -- centred, a spaced monospaced eyebrow
-   behind a short rule, headline and standfirst under it -- set in the page's
-   own colour, so the header and the page below it are one surface. Kept
-   small: the first screen is for the briefs and the rails beside them. No
-   star, no slab, no figures row; all three were tried and taken out again. */
+   One row: the edition label and headline with its date on the left, the
+   provenance line on the right, so the header costs a single band. It is the
+   inverse of the page under it -- ink with white type over the beige Foreign
+   Policy page, the beige with ink type over the dark AI page -- so each
+   edition's header and body read as a matched pair. The China taskforce's
+   spaced monospaced eyebrow stays; the star, slab and figures row do not. */
+
+:root { --c-page: var(--page); }
+.v2 { --header-bg: var(--navy); --header-ink: var(--white); }
+body.v2.series-inverse { --header-bg: var(--c-page); --header-ink: var(--c-ink); }
 
 .v2 .masthead-compact {
-  background: var(--page);
-  color: var(--navy);
+  background: var(--header-bg);
+  color: var(--header-ink);
   border-bottom: 0;
 }
-.v2 .masthead-compact .masthead-inner { padding: 30px 24px 18px; text-align: center; }
+.v2 .masthead-compact .masthead-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px 40px;
+  padding: 18px 24px 16px;
+  text-align: left;
+}
+.v2 .masthead-title { flex: 1 1 520px; min-width: 0; }
 .v2 .masthead-compact .eyebrow {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 10px;
-  margin: 0 0 12px;
+  margin: 0 0 6px;
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 11px;
   letter-spacing: .2em;
-  color: var(--soft);
+  color: var(--header-ink);
+  opacity: .8;
 }
 .v2 .masthead-compact .eyebrow::before {
   content: "";
-  width: 28px;
+  width: 24px;
   height: 1px;
   background: currentColor;
-  opacity: .7;
 }
-.v2 .masthead-compact .eyebrow a { color: var(--soft); }
-.v2 .masthead-compact .eyebrow a:hover, .v2 .masthead-compact .eyebrow a:focus-visible { color: var(--navy); }
+.v2 .masthead-compact .eyebrow a { color: inherit; text-decoration: none; }
+.v2 .masthead-compact .eyebrow-date { letter-spacing: .14em; }
+.v2 .masthead-compact .eyebrow a:hover, .v2 .masthead-compact .eyebrow a:focus-visible { text-decoration: underline; }
 .v2 .masthead-compact h1 {
-  max-width: 34ch;
-  margin: 0 auto;
-  color: var(--navy);
-  font-size: clamp(26px, 3.4vw, 42px);
-  line-height: 1.1;
-  letter-spacing: -.02em;
-  text-wrap: balance;
+  margin: 0;
+  color: var(--header-ink);
+  font-size: clamp(22px, 2.4vw, 32px);
+  line-height: 1.15;
+  letter-spacing: -.015em;
 }
-.v2 .masthead-compact h1 .dateline { display: block; margin: 10px 0 0; color: var(--soft); }
-.v2 .masthead-compact .standfirst { max-width: 70ch; margin: 8px auto 0; font-size: 14px; color: var(--soft); }
-@media (max-width: 640px) {
-  .v2 .masthead-compact .masthead-inner { padding: 20px 16px 12px; }
+.v2 .masthead-compact h1 .dateline {
+  display: inline;
+  margin-left: .6em;
+  color: var(--header-ink);
+  opacity: .75;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.v2 .masthead-compact .standfirst {
+  flex: 0 1 380px;
+  margin: 0;
+  color: var(--header-ink);
+  opacity: .8;
+  font-size: 13.5px;
+  line-height: 1.45;
+  text-align: right;
+}
+@media (min-width: 1080px) {
+  .v2 .masthead-compact .masthead-inner { max-width: calc(var(--wide) + var(--rail) + var(--gap) + 48px); }
+}
+@media (min-width: 1400px) {
+  .v2 .masthead-compact .masthead-inner { max-width: var(--shell-max); }
+}
+@media (max-width: 760px) {
+  .v2 .masthead-compact .masthead-inner { padding: 14px 16px 12px; }
+  .v2 .masthead-compact .standfirst { flex-basis: 100%; text-align: left; }
 }
 
 /* ---------- the two editions as one two-halved switch ----------
