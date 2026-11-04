@@ -988,3 +988,213 @@ html {
   section { padding: 20px; border-radius: 10px; }
   .player-head { flex-direction: column; align-items: flex-start; gap: 12px; }
 }
+
+/* ==========================================================================
+   v2: the China taskforce layout, in this site's colours
+   --------------------------------------------------------------------------
+   Pages rendered from 4 November on carry `v2` on <body>; everything below is
+   scoped to it, because this stylesheet is shared by every edition ever
+   published and the older ones were laid out for the previous masthead.
+
+   What it borrows from the taskforce page: a coloured hero with a large tight
+   headline whose closing phrase sits on a highlight slab, a spaced small-caps
+   eyebrow behind a short rule, a folio pill in the corner and a four-point
+   star; a ruled row of key figures under the hero; monospaced labels; and
+   briefs laid out as two columns, the number and title pinned on the left
+   while the text scrolls on the right. What it keeps: the palette of the day
+   (every colour below is one of the eight roles, so it rotates), the cards,
+   the rails, the globe and the progress bar.
+   ========================================================================== */
+
+:root { --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; }
+
+/* ---------- hero ---------- */
+
+.v2 .hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 0;
+  color: var(--white);
+  /* The accent, deepened toward the ink so the lower half carries body-size
+     text at a comfortable contrast whatever the day's accent is. The flat
+     accent is the fallback where color-mix is unsupported. */
+  background: var(--red);
+  background: linear-gradient(155deg,
+    var(--red) 0%,
+    color-mix(in srgb, var(--red) 72%, var(--navy)) 55%,
+    color-mix(in srgb, var(--red) 45%, var(--navy)) 100%);
+}
+.v2 .hero .masthead-inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 84px 24px 76px;
+}
+.v2 .hero .eyebrow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 22px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: .2em;
+  color: var(--white);
+}
+.v2 .hero .eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  opacity: .7;
+}
+.v2 .hero .eyebrow a { color: var(--white); }
+.v2 .hero .eyebrow a:hover, .v2 .hero .eyebrow a:focus-visible { color: var(--pale); }
+.v2 .hero .eyebrow .sep { opacity: .7; }
+.v2 .hero .eyebrow .dateline { margin: 0; font-size: inherit; color: inherit; }
+.v2 .hero h1 {
+  max-width: 20ch;
+  margin: 0 auto;
+  font-size: clamp(38px, 6.2vw, 82px);
+  line-height: 1.04;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.v2 .hero h1 .slab {
+  background: var(--pale);
+  color: var(--navy);
+  padding: 0 .16em .06em;
+  border-radius: 8px;
+  line-height: 1.22;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.v2 .hero .standfirst {
+  max-width: 62ch;
+  margin: 26px auto 0;
+  color: var(--white);
+  font-size: 18px;
+  line-height: 1.55;
+}
+.v2 .hero .folio {
+  position: absolute;
+  top: 22px;
+  left: 24px;
+  z-index: 2;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: var(--white);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.v2 .hero .spark {
+  position: absolute;
+  right: 4%;
+  bottom: 12%;
+  width: 92px;
+  height: 92px;
+  fill: var(--pale);
+  animation: spark-turn 40s linear infinite;
+}
+@keyframes spark-turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .v2 .hero .spark { animation: none; } }
+@media (max-width: 820px) {
+  .v2 .hero .masthead-inner { padding: 76px 16px 56px; }
+  .v2 .hero .spark { width: 54px; height: 54px; right: 14px; bottom: 12px; }
+  .v2 .hero .standfirst { font-size: 16px; }
+}
+
+/* ---------- key figures ---------- */
+
+.v2 .figs-band { padding: 0 24px; }
+.v2 .figs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: var(--wide);
+  margin: 28px auto 0;
+  border-top: 1px solid var(--soft);
+}
+@media (min-width: 1080px) {
+  .v2 .figs { max-width: calc(var(--wide) + var(--rail) + var(--gap)); }
+}
+@media (min-width: 1400px) {
+  .v2 .figs { max-width: calc(var(--wide) + 2 * (var(--rail) + var(--gap))); }
+}
+.v2 .fig {
+  padding: 18px 18px 16px;
+  border-right: 1px solid var(--pale);
+  border-bottom: 1px solid var(--pale);
+}
+.v2 .fig:last-child { border-right: 0; }
+.v2 .fig dt {
+  font-size: 32px;
+  font-weight: bold;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+}
+.v2 .fig dd { margin: 8px 0 0; font-size: 13px; color: var(--soft); }
+@media (max-width: 640px) {
+  .v2 .figs-band { padding: 0 16px; }
+  .v2 .figs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .v2 .fig:nth-child(2n) { border-right: 0; }
+  .v2 .fig dt { font-size: 26px; }
+}
+
+/* ---------- labels and tabs in the taskforce's monospace ---------- */
+
+.v2 .kicker .label,
+.v2 .rail-label {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 11.5px;
+  letter-spacing: .18em;
+}
+.v2 .series-tab {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: .14em;
+}
+
+/* ---------- briefs: pinned title on the left, text on the right ---------- */
+
+.v2 .brief-num {
+  display: block;
+  margin: 0 0 12px;
+  font-size: 58px;
+  font-weight: bold;
+  line-height: .9;
+  letter-spacing: -.05em;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+.v2 .brief-side h2 { font-size: clamp(22px, 2vw, 26px); line-height: 1.2; }
+.v2 .brief-side .bookmark { margin: 16px 0 0; }
+.v2 .brief-body > :first-child { margin-top: 0; }
+@media (min-width: 900px) {
+  .v2 .brief-split {
+    display: grid;
+    grid-template-columns: minmax(0, 34%) minmax(0, 1fr);
+    column-gap: 32px;
+    align-items: start;
+  }
+  /* The column itself stretches the height of the brief; the inner block is
+     what sticks, so it rides down beside the text and stops at the bottom of
+     its own section rather than overlapping the next one. */
+  .v2 .brief-side {
+    align-self: stretch;
+    padding-right: 24px;
+    border-right: 1px solid var(--pale);
+  }
+  .v2 .brief-side-inner {
+    position: sticky;
+    top: calc(var(--series-bar-h) + 24px);
+  }
+  .v2 .brief-body .art img { height: clamp(200px, 22vw, 320px); }
+}
