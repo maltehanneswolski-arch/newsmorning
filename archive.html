@@ -91,18 +91,22 @@
         .edition .title { font-size: 19px; }
       }
 
-      .series-bar { position: sticky; top: 0; z-index: 6; background: #fff;
-        border-bottom: 1px solid var(--navy); margin: -16px -16px 16px; }
-      .series-tabs { display: grid; grid-template-columns: 1fr 1fr; }
-      .series-tab { display: flex; align-items: center; justify-content: center; min-height: 64px;
-        padding: 0 12px; background: #fff; color: var(--navy); text-decoration: none;
-        font: 500 12.5px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-        letter-spacing: .18em; text-transform: uppercase; }
-      .series-tab + .series-tab { border-left: 1px solid var(--navy); }
+      .series-bar { position: sticky; top: 0; z-index: 6; background: var(--bar-bg, #c8d8db);
+        border-bottom: 1px solid var(--pale); margin: -16px -16px 16px; padding: 10px 16px; }
+      .series-tabs { display: grid; grid-template-columns: 1fr 1fr; max-width: 592px; margin: 0 auto;
+        border: 1.5px solid var(--ink-on, var(--navy)); border-radius: 999px; overflow: hidden;
+        background: var(--tab-bg, #fff); }
+      .series-tab { display: flex; align-items: center; justify-content: center; min-height: 44px;
+        padding: 0 12px; border-radius: 999px; color: var(--ink-on, var(--navy)); text-decoration: none;
+        font: 500 12px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+        letter-spacing: .16em; text-transform: uppercase; }
       .series-tab:hover, .series-tab:focus { background: var(--card); }
-      .series-tab[aria-current="page"] { background: var(--navy); color: #fff; }
+      .series-tab[aria-current="page"] { background: var(--ink-on, var(--navy)); color: var(--tab-bg, #fff);
+        view-transition-name: series-current; }
       .series-links { display: none; }
-      @media (max-width: 640px) { .series-tab { font-size: 11px; letter-spacing: .1em; } }
+      @view-transition { navigation: auto; }
+      @media (max-width: 640px) { .series-tab { font-size: 10.5px; letter-spacing: .08em; } }
+
 
     </style>
   </head>

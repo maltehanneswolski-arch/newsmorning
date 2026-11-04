@@ -1006,13 +1006,18 @@ html {
 :root { --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; }
 
 /* ---------- compact masthead ----------
-   The navy masthead, laid out like the China taskforce header -- centred, a
-   spaced monospaced eyebrow behind a short rule, the headline and the
-   standfirst under it -- but kept small: the first screen is for the briefs
-   and the rails beside them. No star, no slab, no figures row; all three were
-   tried and taken out again. */
+   The China taskforce header's layout -- centred, a spaced monospaced eyebrow
+   behind a short rule, headline and standfirst under it -- set in the page's
+   own colour, so the header and the page below it are one surface. Kept
+   small: the first screen is for the briefs and the rails beside them. No
+   star, no slab, no figures row; all three were tried and taken out again. */
 
-.v2 .masthead-compact .masthead-inner { padding: 30px 24px 28px; text-align: center; }
+.v2 .masthead-compact {
+  background: var(--page);
+  color: var(--navy);
+  border-bottom: 0;
+}
+.v2 .masthead-compact .masthead-inner { padding: 30px 24px 18px; text-align: center; }
 .v2 .masthead-compact .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -1021,6 +1026,7 @@ html {
   font-family: var(--mono);
   font-size: 11.5px;
   letter-spacing: .2em;
+  color: var(--soft);
 }
 .v2 .masthead-compact .eyebrow::before {
   content: "";
@@ -1029,41 +1035,56 @@ html {
   background: currentColor;
   opacity: .7;
 }
+.v2 .masthead-compact .eyebrow a { color: var(--soft); }
+.v2 .masthead-compact .eyebrow a:hover, .v2 .masthead-compact .eyebrow a:focus-visible { color: var(--navy); }
 .v2 .masthead-compact h1 {
   max-width: 34ch;
   margin: 0 auto;
+  color: var(--navy);
   font-size: clamp(26px, 3.4vw, 42px);
   line-height: 1.1;
   letter-spacing: -.02em;
   text-wrap: balance;
 }
-.v2 .masthead-compact h1 .dateline { display: block; margin: 10px 0 0; }
-.v2 .masthead-compact .standfirst { max-width: 70ch; margin: 8px auto 0; font-size: 14px; }
+.v2 .masthead-compact h1 .dateline { display: block; margin: 10px 0 0; color: var(--soft); }
+.v2 .masthead-compact .standfirst { max-width: 70ch; margin: 8px auto 0; font-size: 14px; color: var(--soft); }
 @media (max-width: 640px) {
-  .v2 .masthead-compact .masthead-inner { padding: 20px 16px 18px; }
+  .v2 .masthead-compact .masthead-inner { padding: 20px 16px 12px; }
 }
 
-/* ---------- the two editions as halves of one bar ----------
-   Like the taskforce's Workshop I / Workshop II switch, stretched across the
-   window: the left half is Foreign Policy, the right half Data Science & AI.
-   The edition you are reading is the ink with white type, the other is white
-   with ink type, so the two pages read as inverses of each other. */
+/* ---------- the two editions as one two-halved switch ----------
+   Like the taskforce's Workshop I / Workshop II switch: Foreign Policy on the
+   left half, Data Science & AI on the right, the current one filled with the
+   ink. It sits centred over the content, not across the whole window. */
 
-.v2 .series-bar { border-bottom: 1px solid var(--navy); }
-.v2 .series-bar-inner { max-width: none; padding: 0; min-height: 0; display: block; }
-.v2 .series-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.v2 .series-bar { background: var(--page); border-bottom: 1px solid var(--pale); }
+.v2 .series-bar-inner {
+  max-width: 640px;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 10px 24px;
+  display: block;
+}
+.v2 .series-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1.5px solid var(--navy);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--white);
+}
 .v2 .series-tab {
   justify-content: center;
-  min-height: var(--series-bar-h);
-  padding: 0 16px;
+  min-height: 44px;
+  padding: 0 14px;
   border: 0;
-  border-radius: 0;
-  background: var(--white);
+  border-radius: 999px;
+  background: transparent;
   color: var(--navy);
-  font-size: 12.5px;
-  letter-spacing: .18em;
+  font-size: 12px;
+  letter-spacing: .16em;
 }
-.v2 .series-tab + .series-tab { border-left: 1px solid var(--navy); }
 .v2 .series-tab:hover, .v2 .series-tab:focus-visible {
   background: var(--card);
   color: var(--navy);
@@ -1076,7 +1097,56 @@ html {
 }
 .v2 .series-links { display: none; }
 @media (max-width: 640px) {
-  .v2 .series-tab { font-size: 11px; letter-spacing: .1em; padding: 0 8px; }
+  .v2 .series-bar-inner { padding: 8px 16px; }
+  .v2 .series-tab { font-size: 10.5px; letter-spacing: .08em; padding: 0 6px; }
+}
+:root { --series-bar-h: 66px; }
+
+/* ---------- switching editions ----------
+   Moving between the two editions is a page load, so the animation is a
+   cross-document view transition: the filled half of the switch is one named
+   element on both pages and slides across to the other half, while the rest
+   of the page cross-fades from one colour scheme into the other. Browsers
+   without view transitions (Firefox today) get the short rise-in on <main>
+   instead; reduced motion turns both off. */
+
+@view-transition { navigation: auto; }
+.v2 .series-tab[aria-current="page"] { view-transition-name: series-current; }
+::view-transition-group(series-current) { animation-duration: .45s; animation-timing-function: cubic-bezier(.2, .7, .2, 1); }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .4s; }
+@keyframes v2-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.v2 main, .v2 .rail { animation: v2-rise .4s cubic-bezier(.2, .7, .2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  .v2 main, .v2 .rail { animation: none; }
+}
+
+/* ---------- the inverted edition ----------
+   The Data Science & AI edition is the Foreign Policy page turned inside out:
+   the ink becomes the page and white becomes the type. It is done by
+   re-pointing the colour roles on <body>, so every rule above applies
+   unchanged. The day's palette is captured on :root first (--c-*), because a
+   role cannot be redefined in terms of itself on the same element. Labels,
+   secondary type and the accent are lifted toward the pale so they keep their
+   contrast on the dark ground. */
+
+:root {
+  --c-ink: var(--navy);
+  --c-pale: var(--pale);
+  --c-red: var(--red);
+}
+body.v2.series-inverse {
+  --navy: #ffffff;
+  --white: color-mix(in srgb, var(--c-ink) 78%, #000);
+  --page: var(--c-ink);
+  --card: color-mix(in srgb, var(--c-ink) 86%, #fff);
+  --pale: color-mix(in srgb, var(--c-pale) 38%, var(--c-ink));
+  --purple: var(--c-pale);
+  --soft: color-mix(in srgb, var(--c-pale) 70%, #fff);
+  --red: color-mix(in srgb, var(--c-red) 50%, #fff);
+  --globe-ocean: color-mix(in srgb, var(--c-ink) 70%, #000);
+  background: var(--page);
+  color: var(--navy);
 }
 
 /* ---------- labels and tabs in the taskforce's monospace ---------- */
