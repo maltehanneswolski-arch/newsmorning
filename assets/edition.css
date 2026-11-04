@@ -118,6 +118,26 @@ a:hover, a:focus-visible { color: var(--red); }
 }
 .masthead .eyebrow a { color: var(--pale); text-decoration: none; }
 .masthead .eyebrow a:hover, .masthead .eyebrow a:focus-visible { color: var(--white); }
+/* The two series. Built from the masthead's own two inks so it needs no
+   colour of its own: pale for the other edition, white with the accent rule
+   underneath for the one you are reading. */
+.series-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  margin: 0 0 18px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.series-tabs a {
+  color: var(--pale);
+  text-decoration: none;
+  padding: 2px 0 5px;
+  border-bottom: 3px solid transparent;
+}
+.series-tabs a:hover, .series-tabs a:focus-visible { color: var(--white); }
+.series-tabs a[aria-current="page"] { color: var(--white); border-bottom-color: var(--red); }
 .masthead h1 {
   margin: 0;
   font-size: clamp(30px, 5vw, 52px);
