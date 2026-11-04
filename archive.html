@@ -90,9 +90,32 @@
         header h1 { font-size: 24px; }
         .edition .title { font-size: 19px; }
       }
+
+      .series-bar { position: sticky; top: 0; z-index: 6; background: var(--page);
+        border-bottom: 1px solid var(--pale); margin: -16px -16px 16px; }
+      .series-bar-inner { max-width: 780px; margin: 0 auto; padding: 10px 16px; box-sizing: border-box;
+        display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; min-height: 64px; }
+      .series-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+      .series-tab { display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box;
+        padding: 0 18px; border: 1px solid var(--soft); border-radius: 999px; color: var(--navy);
+        font-size: 12px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
+        text-decoration: none; white-space: nowrap; transition: border-color .25s, transform .25s; }
+      .series-tab:hover, .series-tab:focus { border-color: var(--red); transform: translateY(-1px); }
+      .series-tab[aria-current="page"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+      .series-links { margin: 0 0 0 auto; display: flex; gap: 18px; font-size: 14px; }
+      .series-links a { color: var(--purple); }
+      @media (max-width: 640px) { .series-tab { padding: 0 14px; letter-spacing: .1em; } .series-links { display: none; } }
+
     </style>
   </head>
   <body>
+    <div class="series-bar">
+      <div class="series-bar-inner">
+        <nav class="series-tabs" aria-label="Editions"><a class="series-tab" href="./" aria-current="page">Foreign Policy</a><a class="series-tab" href="data-science/">Data Science &amp; AI</a></nav>
+        <p class="series-links"><a href="archive.html">All editions</a>
+          <a href="bookmarks.html">Saved items</a></p>
+      </div>
+    </div>
     <div class="wrap">
       <header>
         <span class="eyebrow"><a href="./">Daily Newsletter</a></span>
